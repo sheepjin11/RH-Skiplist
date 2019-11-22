@@ -30,6 +30,21 @@ unique_ptr<index_node> make_indexNode(int min_val, struct leaf_node *leafnode)
 	return unique_ptr<indeX_node>(new index_node(min_val, leafnode))
 }
 
+unique_ptr<leaf_node> make_leafNode(int min_val)
+{
+	//kuku hash default
+	int log_table_size = 8;
+    size_t stash_size = 2;
+    size_t loc_func_count = 4;
+    item_type loc_func_seed = make_random_item();
+    uint64_t max_probe = 100;
+    item_type empty_item = make_item(0, 0);
+	KuKutable* newHT = new KuKutable(log_table_size,stash_size, loc_func_count, loc_func_seed,	max_probe, empty_item);
+	leaf_node* leafnode = new leaf_node(min_val, newHT);
+	bloom_filter* leafBF = new bloom_filter;
+	leafnode->BF = leafBF();
+	return leafnode;
+}
 SkipList::SkipList(uint8_t max_level)
 	:_max_level(max_level),
 	 _level(1) {
@@ -89,12 +104,12 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 	index_node *x = _head.get();
 	for (size_t i = _level; i >= 1; --i) {
 		shared_ptr<index_node> next = x->forward[i];
-		while (next->min < key && next->forward[i]->min > key) {
+		while (next->forward[i]->min < key) {
 			x = next.get();
 		}
 		update[i] = x;
 	}
-	x = x->forward[1].get();
+	//x = x->forward[1].get();
 	if (x->leaf->Get(key) == true) { // need for hash search 
 		//x->value = value;
 		// implementation value update;
@@ -108,17 +123,21 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 		}
 		if(checkSplitNode(x->leaf)==true)
 		{
-
 			//node split;
-			//¹Þ¾Æ¾ß ÇÒ ÀÎÀÚ : hash table
+			//ë°›ì•„ì•¼ í•  ì¸ìž : hash table
+			leaf* before = x->leaf;
+			leaf* next = x->forward[0]->leaf; // level 0 ì¼ ë•Œì˜ leaf
 			int new_min = (x->min+x->forward[i]->min)/2;
-			leaf_node* new_leaf = new leaf_node(new_min, NewHT);
-			auto p = SkipList::make_indexnode(new_min, new_leaf);	
+			leaf_node* new_leaf = make_leafNode(new_min);
+			auto p = make_indexnode(new_min, new_leaf);	
 			std::shared_ptr<index_node> sp = std::move(p);
 			for (size_t i = 1; i <= lvl; ++i) {
 				sp->forward[i] = update[i]->forward[i];
 				update[i]->forward[i] = sp;
-			}
+			} // for index node
+			before->leaf_forward = p->leaf;
+			p->leaf->leaf_forward = next;
+			
 		}
 		else
 		{
@@ -128,7 +147,7 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 		
 	}
 }
-
+//heejin must implement leaf node
 bool SkipList::erase(uint64_t key) {
 	std::vector<index_node*> update(_max_level+1);
 	index_node *x = _head.get();
@@ -146,4 +165,5 @@ bool SkipList::erase(uint64_t key) {
 	
 	return true;
 }
+
 
