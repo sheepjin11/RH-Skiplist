@@ -14,7 +14,7 @@ SkipListNode::SkipListNode(uint64_t key, const std::string& value, uint8_t level
 	 marked(false),
 	 fullyLinked(false) {
 #ifdef DEBUG
-	alive.fetch_add(1);
+	alive.fetch_add(1); //heejin : fetch add? 
 #endif
 }
 
@@ -112,7 +112,7 @@ bool SkipList::concurrentInsert(uint64_t key, const std::string& value) {
 	while(true) {
 		uint8_t found_level = 0;
 		bool found = findNode(key, &preds, &succs, &found_level);
-		if (found) {
+		if (found) { //key is already exist
 			SkipListNode* node_found = succs[found_level].get();
 			if (!node_found->marked.load()) {
 				while(!node_found->fullyLinked.load()) {;}
