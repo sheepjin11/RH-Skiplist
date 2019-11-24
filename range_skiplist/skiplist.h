@@ -8,8 +8,8 @@
 #include <vector>
 #include <atomic>
 
-#include <kuku/kuku.h>
-#include "bloom_filter.hpp"
+#include "/home/heejin/computer_archi/Kuku/src/kuku/kuku.h"
+#include "/home/heejin/computer_arch/bloom/bloom_filter.hpp"
 
 #define DEBUG 1
 
