@@ -20,30 +20,31 @@ index_node::index_node(int min_val, struct leaf_node* leafnode)
 
 	}
 
-leaf_node::leaf_node(int min_val, KuKutable *targetHT)
+leaf_node::leaf_node(int min_val, KukuTable *targetHT)
 	:min(min_val),
 	leaf_HT(targetHT){	
 	}
 
 unique_ptr<index_node> make_indexNode(int min_val, struct leaf_node *leafnode)
 {
-	return unique_ptr<indeX_node>(new index_node(min_val, leafnode))
+	return unique_ptr<index_node>(new index_node(min_val, leafnode));
 }
 
 unique_ptr<leaf_node> make_leafNode(int min_val)
 {
 	//kuku hash default
 	int log_table_size = 8;
-    size_t stash_size = 2;
-    size_t loc_func_count = 4;
-    item_type loc_func_seed = make_random_item();
-    uint64_t max_probe = 100;
-    item_type empty_item = make_item(0, 0);
-	KuKutable* newHT = new KuKutable(log_table_size,stash_size, loc_func_count, loc_func_seed,	max_probe, empty_item);
+  size_t stash_size = 2;
+  size_t loc_func_count = 4;
+  item_type loc_func_seed = make_random_item();
+  uint64_t max_probe = 100;
+  item_type empty_item = make_item(0, 0);
+	KukuTable* newHT = new KukuTable(log_table_size,stash_size, loc_func_count, loc_func_seed,	max_probe, empty_item);
 	leaf_node* leafnode = new leaf_node(min_val, newHT);
 	bloom_filter* leafBF = new bloom_filter;
 	leafnode->BF = leafBF();
-	return leafnode;
+
+	return leaf_node;
 }
 SkipList::SkipList(uint8_t max_level)
 	:_max_level(max_level),
