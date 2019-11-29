@@ -5,7 +5,7 @@
 
 // Include kuku/config.h only on platforms with CMake configuration (not MSVC).
 #ifndef _MSC_VER
-#include "kuku/config.h"
+#include "/home/heejin/computer_archi/Kuku/src/kuku/config.h"
 #endif
 
 #include <cstddef>

@@ -66,7 +66,8 @@ public:
 	// for debug
 	void traverse();
 
-	static std::unique_ptr<index_node> make_indexNode(uint8_t lvl, int min_val, struct leaf_node *leafnode);
+  bool findNode(uint64_t key, std::vector<std::shared_ptr<index_node>>* preds, std::vector<std::shared_ptr<index_node>>* succs, uint8_t* layer);
+	static std::unique_ptr<index_node> make_indexNode(uint8_t lvl, int min_val, leaf_node *leafnode);
 
 	static std::unique_ptr<leaf_node> make_leafNode(int min);
 
