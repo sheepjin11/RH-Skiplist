@@ -9,6 +9,11 @@ default_target: all
 # Allow only one "make -f Makefile2" at a time, but pass parallelism.
 .NOTPARALLEL:
 
+#heejin added
+LINKER_OPT = -L/usr/lib -lstdc++ -lm
+COMPILER = -c++
+OPTIMIZATION_OPT = -03
+
 
 #=============================================================================
 # Special targets provided by cmake.

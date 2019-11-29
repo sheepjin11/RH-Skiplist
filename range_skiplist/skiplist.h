@@ -7,7 +7,7 @@
 #include <atomic>
 
 #include "kuku/kuku.h"
-#include "bloom_filter.h"
+#include "bloom_filter.hpp"
 #define DEBUG 1
 using namespace kuku;
 using namespace std;
@@ -34,7 +34,7 @@ struct leaf_node
   item_type loc_func_seed = make_random_item();
   uint64_t max_probe = 100;
   item_type empty_item = make_item(0, 0);
-  KukuTable leaf_HT;	
+  KukuTable* leaf_HT;	
 	/*KukuTable leaf_HT(
 		log_table_size,
 		stash_size,

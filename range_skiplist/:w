@@ -9,7 +9,6 @@
 #include <iostream>
 #include <iomanip>
 #include <cstddef>
-#include <string>
 
 using namespace std;
 using namespace kuku;
@@ -47,18 +46,6 @@ leaf_node* make_leafNode(int min_val)
 	leafnode->BF = new bloom_filter();// size can be modified 
 
 	return leafnode;
-}
-void insertLeaf(leaf_node* leaf, uint64_t key)
-{
-  leaf->BF->insert(to_string(key));
-  //hash insert`
-}
-
-bool deleteLeaf(leaf_node* leaf, uint64_t key)
-{
-  //hash delete
-  //BF cannot delete element 
-  return true;
 }
 SkipList::SkipList(uint8_t max_level)
 	:_max_level(max_level),
@@ -118,7 +105,7 @@ bool SkipList::findNode(uint64_t key, std::vector<std::shared_ptr<index_node>>* 
 
 void SkipList::insert(uint64_t key, const std::string& value) {
 	std::vector<index_node*> update(_max_level+1);
-	index_node* x = index_head.get();
+	index_node *x = index_head.get();
 	for (size_t i = _level; i >= 1; --i) {
 		shared_ptr<index_node> next = x->forward[i];
 		while (next->forward[i]->min < key) {
@@ -146,17 +133,14 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 			leaf_node* next_leaf = x->forward[0]->leaf; // level 0 일 때의 leaf
 			int new_min = (x->min+next_leaf->min)/2;
 			unique_ptr<leaf_node> new_leaf = make_leafNode(new_min);
-      leaf_node* new_leaf_pointer = new_leaf.get();
-			auto p = make_indexNode(randomLevel(),new_min, new_leaf_pointer);	
+			auto p = make_indexNode(new_min, &new_leaf);	
 			std::shared_ptr<index_node> sp = std::move(p);
 			for (size_t i = 1; i <= lvl; ++i) {
 				sp->forward[i] = update[i]->forward[i];
 				update[i]->forward[i] = sp;
-			} // for index node 
-      shared_ptr<leaf_node> before_leaf_forward(p->leaf);
-      shared_ptr<leaf_node> next_leaf_forward(next_leaf);
-			before->leaf_forward = before_leaf_forward;
-			p->leaf->leaf_forward = next_leaf_forward;
+			} // for index node
+			before->leaf_forward = p->leaf;
+			p->leaf->leaf_forward = next;
 			
 		}
 		else
@@ -170,7 +154,7 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 //heejin must implement leaf node
 bool SkipList::erase(uint64_t key) {
 	std::vector<index_node*> update(_max_level+1);
-	index_node* x= index_head.get();
+	index_node *x = leaf_head.get();
 	for(size_t i = _level; i >= 1; --i) {
 		shared_ptr<index_node> next = x->forward[i];
 		while (next->min < key && next->forward[i]->min > key) {
@@ -185,4 +169,5 @@ bool SkipList::erase(uint64_t key) {
 	
 	return true;
 }
+
 
