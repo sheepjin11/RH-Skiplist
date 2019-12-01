@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <random>
 #include <chrono>
-#include "/workspace/computer_archi/range_skiplist/skiplist.h"
+#include "skiplist.h"
 #include <iostream>
 #include <iomanip>
 #include <cstddef>
@@ -28,9 +28,9 @@ leaf_node::leaf_node(int min_val, KukuTable *HT)
 	leaf_HT(HT){	
 	}
 
-unique_ptr<index_node> SkipList::make_indexNode(int lvl, int min_val,leaf_node *leafnode)
+index_node* SkipList::make_indexNode(int lvl, int min_val,leaf_node *leafnode)
 {
-	return unique_ptr<index_node>(new index_node(lvl, min_val, leafnode));
+	return new index_node(lvl, min_val, leafnode);
 }
 
 leaf_node* SkipList::make_leafNode(int min_val)
@@ -88,17 +88,17 @@ int SkipList::randomLevel() const {
 	return lvl;
 }
 
-
-uint64_t SkipList::findNode(uint64_t key, std::vector<std::shared_ptr<index_node>>* preds,
-	std::vector<std::shared_ptr<index_node>>* succs, uint8_t* layer) { // return value address
-	std::shared_ptr<index_node> prev = index_head;
+//in LEVELDB, FindGreaterOrEqual
+uint64_t SkipList::findNode(uint64_t key, std::vector<index_node>* preds,
+	std::vector<index_node>* succs, uint8_t* layer) { // return value address
+	index_node* prev = index_head;
 	bool found = false;
 	uint64_t val_addr;
 	assert(preds->size() >= _max_level+1);
 	assert(succs->size() >= _max_level+1);
 	for (size_t i = _max_level; i >= 1; --i) {
-		std::shared_ptr<index_node> curr = prev->forward[i];
-		shared_ptr<index_node> next = curr->forward[i];
+		index_node* curr = prev->forward[i];
+		index_node* next = curr->forward[i];
 		while (next->min < key) {
 			prev = curr;
 			curr = curr->forward[i];
@@ -114,11 +114,14 @@ uint64_t SkipList::findNode(uint64_t key, std::vector<std::shared_ptr<index_node
 					found=true;
 					val_addr = curr_leaf->leaf_HT->get(key);
 					*layer = i;
+          break;
 				}
 			}
 		}
+/*
 		(*preds)[i] = prev;
 		(*succs)[i] = curr;
+*/
 	}
 	if (!found)
 		return 0;
@@ -129,20 +132,20 @@ uint64_t SkipList::findNode(uint64_t key, std::vector<std::shared_ptr<index_node
 
 void SkipList::insert(uint64_t key, const std::string& value) {
 	std::vector<index_node*> update(_max_level+1);
-	index_node* x = index_head.get();
+	index_node* x = index_head;
 	for (size_t i = _level; i >= 1; --i) {
-		shared_ptr<index_node> next = x->forward[i];
+		index_node* next = x->forward[i];
 		while (next->forward[i]->min < key) {
-			x = next.get();
+			x = next;
 		}
 		update[i] = x;
 	}
-	//x = x->forward[1].get();
+	//x = x->forward[1];
 	if (!insertLeaf(x->leaf,key,value)) { // if insert is fail, need to split leaf node
 		uint8_t lvl = randomLevel();
 		if (lvl > _level) {
 			for (size_t i = _level+1; i <= lvl; i++) {
-				update[i] = index_head.get();//maybe should be modified
+				update[i] = index_head;//maybe should be modified
 			}
 			_level = lvl;
 		}
@@ -152,32 +155,29 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 		leaf_node* before = x->leaf;
 		leaf_node* next_leaf = x->forward[0]->leaf; // level 0 일 때의 leaf
 		int new_min = (x->min+next_leaf->min)/2; // comment : x가 아니라 before->min 아닌가?!
-		unique_ptr<leaf_node> new_leaf = make_leafNode(new_min);
+		leaf_node* new_leaf = make_leafNode(new_min);
 		//기존 hash table에서 new hash table로 key,value 이동 필요 
-      	leaf_node* new_leaf_pointer = new_leaf.get();
+    leaf_node* new_leaf_pointer = new_leaf;
 		auto p = make_indexNode(randomLevel(), new_min, new_leaf_pointer);	
-		std::shared_ptr<index_node> sp = std::move(p);
+		index_node* sp = p;
 		for (size_t i = 1; i <= lvl; ++i) {
 			sp->forward[i] = update[i]->forward[i];
 			update[i]->forward[i] = sp;
 		} // for index node 
-  		shared_ptr<leaf_node> before_leaf_forward(p->leaf);
-    	shared_ptr<leaf_node> next_leaf_forward(next_leaf);
+  		leaf_node* before_leaf_forward(p->leaf);
+    	leaf_node* next_leaf_forward(next_leaf);
 		before->leaf_forward = before_leaf_forward;
 		p->leaf->leaf_forward = next_leaf_forward;
-			
-	
-		
 	}
 }
 //heejin must implement leaf node
 bool SkipList::erase(uint64_t key) {
 	std::vector<index_node*> update(_max_level+1);
-	index_node* x= index_head.get();
+	index_node* x= index_head;
 	for(size_t i = _level; i >= 1; --i) {
-		shared_ptr<index_node> next = x->forward[i];
+		index_node* next = x->forward[i];
 		while (next->min < key && next->forward[i]->min > key) {
-			x = next.get();
+			x = next;
 		}
 		update[i] = x;
 	}
@@ -193,4 +193,10 @@ bool SkipList::erase(uint64_t key) {
 int main()
 {
 	cout << "skiplist !! " << endl;
+  SkipList* _skiplist = new SkipList(8);
+  for(int i=0;i<10;i++)
+  {
+    _skiplist->insert(i,"a");
+  }
+  cout << "inserted " << endl;
 }

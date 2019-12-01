@@ -18,7 +18,7 @@ struct index_node
   ~index_node();
   int min;
   struct leaf_node *leaf;
-  vector<shared_ptr<index_node>> forward;
+  vector<index_node*> forward;
   int level;
 };
 
@@ -27,7 +27,7 @@ struct leaf_node
 	leaf_node(int min_val, KukuTable *HT);
 	~leaf_node();
 	int min;
-	shared_ptr<leaf_node> leaf_forward;
+	leaf_node* leaf_forward;
 	bloom_filter* BF;
   	KukuTable* leaf_HT;	
 };
@@ -52,9 +52,9 @@ public:
 	// for debug
 	void traverse();
 
-    uint64_t findNode(uint64_t key, std::vector<std::shared_ptr<index_node>>* preds, std::vector<std::shared_ptr<index_node>>* succs, uint8_t* layer);
-	static std::unique_ptr<index_node> make_indexNode(int lvl, int min_val, leaf_node *leafnode);
-	static leaf_node* make_leafNode(int min);
+  uint64_t findNode(uint64_t key, std::vector<index_node>* preds, std::vector<index_node>* succs, uint8_t* layer);
+	index_node* make_indexNode(int lvl, int min_val, leaf_node *leafnode);
+	leaf_node* make_leafNode(int min);
 	bool insertLeaf(leaf_node* leaf, uint64_t key, const std::string& value);
 	bool deleteLeaf(leaf_node* leaf, uint64_t key);
 //concurrent operation will be implemented later
@@ -65,8 +65,8 @@ private:
 	// current level, not used in concurrent version
 	uint8_t _level;
 
-	std::unique_ptr<index_node> index_head;
-  	leaf_node* leaf_head;
+	index_node* index_head;
+  leaf_node* leaf_head;
 
 };
 
