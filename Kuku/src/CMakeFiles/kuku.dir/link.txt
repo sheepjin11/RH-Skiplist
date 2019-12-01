@@ -1,2 +1,2 @@
-/usr/bin/ar qc /home/heejin/computer_archi/Kuku/lib/libkuku-1.1.a  CMakeFiles/kuku.dir/kuku/blake2b.c.o CMakeFiles/kuku.dir/kuku/common.cpp.o CMakeFiles/kuku.dir/kuku/kuku.cpp.o
-/usr/bin/ranlib /home/heejin/computer_archi/Kuku/lib/libkuku-1.1.a
+/usr/bin/ar qc /workspace/computer_archi/Kuku/lib/libkuku-1.1.a  CMakeFiles/kuku.dir/kuku/blake2b.c.o CMakeFiles/kuku.dir/kuku/common.cpp.o CMakeFiles/kuku.dir/kuku/kuku.cpp.o
+/usr/bin/ranlib /workspace/computer_archi/Kuku/lib/libkuku-1.1.a

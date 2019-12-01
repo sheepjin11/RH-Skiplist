@@ -137,7 +137,7 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 			} // for index node
 			before->leaf_forward = p->leaf;
 			p->leaf->leaf_forward = next;
-			
+			//hash split must be implemented
 		}
 		else
 		{

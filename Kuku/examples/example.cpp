@@ -70,17 +70,23 @@ int main(int argc, char *argv[])
         char c;
         cin.get(c);
 
-        for (uint64_t i = 0; i < 20; i++)
+        for (uint64_t i = 0; i < 100; i++)
         {
-            if (!table.insert(make_item(i + 1, round_counter + 1)))
+			item_type item = make_item(i + 1, round_counter+1);
+            if (!table.insert(item))
             {
-                cout << "Insertion failed: round_counter = "
+                cout << "Insertion failed~~: round_counter = "
                     << round_counter << ", i = " << i << endl;
                 cout << "Inserted successfully " << round_counter * 20 + i << " items" << endl;
                 cout << "Fill rate: " << table.fill_rate() << endl;
                 cout << "Leftover item: " << table.last_insert_fail_item() << endl << endl;
                 break;
             }
+			cout << "------------------------------------" <<endl;
+			cout << "round_counter+1 = "
+                    << round_counter+1 << ", i+1 = " << i+1 << endl;
+			cout << "("<< i+1 << ", " << round_counter+1  <<") item : " << table.query(item) << endl;
+			cout << "("<< i+1 << ", " << 0 <<") item : " << table.query(make_item(i+1,0)) <<endl;
         }
 
         print_table(table);

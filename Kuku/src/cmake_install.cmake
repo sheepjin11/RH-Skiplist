@@ -1,8 +1,8 @@
-# Install script for directory: /home/heejin/computer_archi/Kuku/src
+# Install script for directory: /workspace/computer_archi/Kuku/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/heejin/usr/include")
+  set(CMAKE_INSTALL_PREFIX "/usr/local")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -38,14 +38,14 @@ if(NOT DEFINED CMAKE_CROSSCOMPILING)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/home/heejin/computer_archi/Kuku/lib/libkuku-1.1.a")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE STATIC_LIBRARY FILES "/workspace/computer_archi/Kuku/lib/libkuku-1.1.a")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/Kuku-1.1/KukuTargets.cmake")
     file(DIFFERENT EXPORT_FILE_CHANGED FILES
          "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/Kuku-1.1/KukuTargets.cmake"
-         "/home/heejin/computer_archi/Kuku/src/CMakeFiles/Export/lib/cmake/Kuku-1.1/KukuTargets.cmake")
+         "/workspace/computer_archi/Kuku/src/CMakeFiles/Export/lib/cmake/Kuku-1.1/KukuTargets.cmake")
     if(EXPORT_FILE_CHANGED)
       file(GLOB OLD_CONFIG_FILES "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/cmake/Kuku-1.1/KukuTargets-*.cmake")
       if(OLD_CONFIG_FILES)
@@ -54,22 +54,22 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
       endif()
     endif()
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/Kuku-1.1" TYPE FILE FILES "/home/heejin/computer_archi/Kuku/src/CMakeFiles/Export/lib/cmake/Kuku-1.1/KukuTargets.cmake")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/Kuku-1.1" TYPE FILE FILES "/workspace/computer_archi/Kuku/src/CMakeFiles/Export/lib/cmake/Kuku-1.1/KukuTargets.cmake")
   if("${CMAKE_INSTALL_CONFIG_NAME}" MATCHES "^([Rr][Ee][Ll][Ee][Aa][Ss][Ee])$")
-    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/Kuku-1.1" TYPE FILE FILES "/home/heejin/computer_archi/Kuku/src/CMakeFiles/Export/lib/cmake/Kuku-1.1/KukuTargets-release.cmake")
+    file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/Kuku-1.1" TYPE FILE FILES "/workspace/computer_archi/Kuku/src/CMakeFiles/Export/lib/cmake/Kuku-1.1/KukuTargets-release.cmake")
   endif()
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib/cmake/Kuku-1.1" TYPE FILE FILES
-    "/home/heejin/computer_archi/Kuku/src/cmake/KukuConfig.cmake"
-    "/home/heejin/computer_archi/Kuku/src/cmake/KukuConfigVersion.cmake"
+    "/workspace/computer_archi/Kuku/src/cmake/KukuConfig.cmake"
+    "/workspace/computer_archi/Kuku/src/cmake/KukuConfigVersion.cmake"
     )
 endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/heejin/computer_archi/Kuku/src/kuku/cmake_install.cmake")
+  include("/workspace/computer_archi/Kuku/src/kuku/cmake_install.cmake")
 
 endif()
 
@@ -81,5 +81,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/heejin/computer_archi/Kuku/src/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/workspace/computer_archi/Kuku/src/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

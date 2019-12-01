@@ -1,8 +1,8 @@
-# Install script for directory: /home/heejin/computer_archi/Kuku/src/kuku
+# Install script for directory: /workspace/computer_archi/Kuku/src/kuku
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/heejin/usr/include")
+  set(CMAKE_INSTALL_PREFIX "/usr/local")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -39,12 +39,12 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/Kuku-1.1/kuku" TYPE FILE FILES
-    "/home/heejin/computer_archi/Kuku/src/kuku/blake2.h"
-    "/home/heejin/computer_archi/Kuku/src/kuku/blake2-impl.h"
-    "/home/heejin/computer_archi/Kuku/src/kuku/config.h"
-    "/home/heejin/computer_archi/Kuku/src/kuku/kuku.h"
-    "/home/heejin/computer_archi/Kuku/src/kuku/common.h"
-    "/home/heejin/computer_archi/Kuku/src/kuku/locfunc.h"
+    "/workspace/computer_archi/Kuku/src/kuku/blake2.h"
+    "/workspace/computer_archi/Kuku/src/kuku/blake2-impl.h"
+    "/workspace/computer_archi/Kuku/src/kuku/config.h"
+    "/workspace/computer_archi/Kuku/src/kuku/kuku.h"
+    "/workspace/computer_archi/Kuku/src/kuku/common.h"
+    "/workspace/computer_archi/Kuku/src/kuku/locfunc.h"
     )
 endif()
 

@@ -5,7 +5,7 @@
 
 // Include kuku/config.h only on platforms with CMake configuration (not MSVC).
 #ifndef _MSC_VER
-#include "/home/heejin/computer_archi/Kuku/src/kuku/config.h"
+#include "kuku/config.h"
 #endif
 
 #include <cstddef>
@@ -101,7 +101,7 @@ namespace kuku
 
     inline bool are_equal_item(const item_type &in1, const item_type &in2) noexcept
     {
-        return (in1[0] == in2[0]) && (in1[1] == in2[1]);
+        return (in1[0] == in2[0]);
     }
 
     inline void set_random_item(item_type &destination) noexcept

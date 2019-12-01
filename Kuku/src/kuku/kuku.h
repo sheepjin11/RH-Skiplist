@@ -76,13 +76,16 @@ namespace kuku
         */
         inline bool insert(item_type item)
         {
-            // Return false if the item already exists in the table
-            if (query(item))
-            {
-                return false;
-            }
+            // // Return false if the item already exists in the table
+            // if (query(item))
+            // {
+            //     return false;
+            // }
+			
             return insert(item, 0);
         }
+		
+		uint64_t get(uint64_t key);
 
         /*
         Returns true of the provided item is contained in the hash table.

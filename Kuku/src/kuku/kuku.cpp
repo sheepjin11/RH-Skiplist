@@ -2,13 +2,15 @@
 // Licensed under the MIT license.
 
 #include "kuku/kuku.h"
-
+#include "iostream"
+#include <assert.h>
 using namespace std;
 
 namespace kuku
 {
     QueryResult KukuTable::query(item_type item) const
     {
+		item_type index_item = make_item(item[0], 0);
         if (is_empty_item(item))
         {
             throw invalid_argument("cannot query the empty item");
@@ -18,7 +20,8 @@ namespace kuku
         auto lfc = loc_func_count();
         for (size_t i = 0; i < lfc; i++)
         {
-            auto loc = location(item, i);
+            auto loc = location(index_item, i);
+			//std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::endl;
             if (are_equal_item(table_[loc], item))
             {
                 return { loc, i };
@@ -100,6 +103,8 @@ namespace kuku
 
     bool KukuTable::insert(item_type item, uint64_t level)
     {
+		item_type index_item = make_item(item[0], 0);
+		//std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::endl;
         if (is_empty_item(item))
         {
             throw invalid_argument("cannot insert the null item");
@@ -121,17 +126,49 @@ namespace kuku
 
         // Choose random location index
         size_t loc_index = size_t(rd_()) % loc_funcs_.size();
-        location_type loc = loc_funcs_[loc_index](item);
-        auto old_item = swap(item, loc);
+        location_type loc = loc_funcs_[loc_index](index_item);
+        auto old_item = swap(item, loc); // how to know whether old item has same key as index_item ? need to check 
 
         if (is_empty_item(old_item))
         {
             inserted_items_++;
             return true;
         }
+		else if (are_equal_item(old_item, index_item))
+		{
+			inserted_items_++;
+            return true;
+		}
         else
         {
             return insert(old_item, level + 1);
         }
     }
+	
+	uint64_t KukuTable::get(uint64_t key)
+	{
+		item_type index_item = make_item(key, 0);
+		// Search the hash table
+        auto lfc = loc_func_count();
+        for (size_t i = 0; i < lfc; i++)
+        {
+            auto loc = location(index_item, i);
+			//std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::endl;
+            if (are_equal_item(table_[loc], index_item))
+            {
+                return table_[loc][1];
+            }
+        }
+
+        // Search the stash
+        for (location_type loc = 0; loc < stash_.size(); loc++)
+        {
+            if (are_equal_item(stash_[loc], index_item))
+            {
+                return stash_[loc][1];
+            }
+        }
+		
+		
+	}
 }
