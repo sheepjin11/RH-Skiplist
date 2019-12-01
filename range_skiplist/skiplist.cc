@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <random>
 #include <chrono>
-#include "skiplist.h"
+#include "/workspace/computer_archi/range_skiplist/skiplist.h"
 #include <iostream>
 #include <iomanip>
 #include <cstddef>
@@ -16,9 +16,10 @@ using namespace kuku;
 
 
 
-index_node::index_node(int min_val, struct leaf_node* leafnode)
+index_node::index_node(int lvl, int min_val, struct leaf_node* leafnode)
 	:min(min_val),
-	leaf(leafnode){		
+	leaf(leafnode),
+	level(lvl){		
 
 	}
 
@@ -27,12 +28,12 @@ leaf_node::leaf_node(int min_val, KukuTable *HT)
 	leaf_HT(HT){	
 	}
 
-unique_ptr<index_node> make_indexNode(int min_val,leaf_node *leafnode)
+unique_ptr<index_node> SkipList::make_indexNode(int lvl, int min_val,leaf_node *leafnode)
 {
-	return unique_ptr<index_node>(new index_node(min_val, leafnode));
+	return unique_ptr<index_node>(new index_node(lvl, min_val, leafnode));
 }
 
-leaf_node* make_leafNode(int min_val)
+leaf_node* SkipList::make_leafNode(int min_val)
 {
 	//kuku hash default
 	int log_table_size = 8;
@@ -48,7 +49,7 @@ leaf_node* make_leafNode(int min_val)
 
 	return leafnode;
 }
-bool insertLeaf(leaf_node* leaf, uint64_t key, const std::string& value)
+bool SkipList::insertLeaf(leaf_node* leaf, uint64_t key, const std::string& value)
 {
 	uint64_t val_addr = 0; // need to modify
 	if (!leaf->leaf_HT->insert(make_item(key,val_addr))) // if insert fails, return false. need to split.
@@ -58,25 +59,26 @@ bool insertLeaf(leaf_node* leaf, uint64_t key, const std::string& value)
 
 }
 
-bool deleteLeaf(leaf_node* leaf, uint64_t key)
+bool SkipList::deleteLeaf(leaf_node* leaf, uint64_t key)
 {
   //hash delete
   //BF cannot delete element 
   return true;
 }
+
 SkipList::SkipList(uint8_t max_level)
 	:_max_level(max_level),
 	 _level(1) {
 	// key,value for headnode is meanless
-	index_head = std::move(SkipList::make_indexNode(-1,-1,NULL)); // head points NULL leaf node and its min value is -1
-	leaf_head = std::move(SkipList::make_leafNode(-1)); // head points NULL leaf node and its min value is -1
-	for (size_t i = 0; i <= max_level; i++) {
-		index_head->forward[i] = SkipList::make_indexNode(i,std::numeric_limits<uint64_t>::max(), NULL);
+	index_head = SkipList::make_indexNode(-1,-1,NULL); // head points NULL leaf node and its min value is -1
+	leaf_head = SkipList::make_leafNode(-1); // head points NULL leaf node and its min value is -1
+	for (int i = 0; i <= max_level; i++) {
+		index_head->forward[i] = SkipList::make_indexNode(i,-2, NULL);
 		leaf_head->leaf_forward = SkipList::make_leafNode(-1);
 	}
 }
 //do not modify anything
-uint8_t SkipList::randomLevel() const {
+int SkipList::randomLevel() const {
 	static thread_local std::mt19937 generator(std::chrono::system_clock::now().time_since_epoch().count());
     std::uniform_int_distribution<int> distribution(0,1);
 	uint8_t lvl = 1;
@@ -153,7 +155,7 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 		unique_ptr<leaf_node> new_leaf = make_leafNode(new_min);
 		//기존 hash table에서 new hash table로 key,value 이동 필요 
       	leaf_node* new_leaf_pointer = new_leaf.get();
-		auto p = make_indexNode(randomLevel(),new_min, new_leaf_pointer);	
+		auto p = make_indexNode(randomLevel(), new_min, new_leaf_pointer);	
 		std::shared_ptr<index_node> sp = std::move(p);
 		for (size_t i = 1; i <= lvl; ++i) {
 			sp->forward[i] = update[i]->forward[i];
@@ -187,3 +189,8 @@ bool SkipList::erase(uint64_t key) {
 	return true;
 }
 
+
+int main()
+{
+	cout << "skiplist !! " << endl;
+}

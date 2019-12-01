@@ -9,15 +9,17 @@
 #include "kuku/kuku.h"
 #include "bloom_filter.hpp"
 #define DEBUG 1
+
 using namespace kuku;
 using namespace std;
 struct index_node
 {
-  index_node(int min_val, struct leaf_node *leaf);
+  index_node(int lvl, int min_val, struct leaf_node *leaf);
   ~index_node();
   int min;
   struct leaf_node *leaf;
   vector<shared_ptr<index_node>> forward;
+  int level;
 };
 
 struct leaf_node
@@ -45,16 +47,16 @@ public:
 	bool contains(uint64_t key); 
 
 	// thread-safe
-	uint8_t randomLevel() const;
+	int randomLevel() const;
 
 	// for debug
 	void traverse();
 
-  uint64_t findNode(uint64_t key, std::vector<std::shared_ptr<index_node>>* preds, std::vector<std::shared_ptr<index_node>>* succs, uint8_t* layer);
-	static std::unique_ptr<index_node> make_indexNode(uint8_t lvl, int min_val, leaf_node *leafnode);
-
-	static std::unique_ptr<leaf_node> make_leafNode(int min);
-
+    uint64_t findNode(uint64_t key, std::vector<std::shared_ptr<index_node>>* preds, std::vector<std::shared_ptr<index_node>>* succs, uint8_t* layer);
+	static std::unique_ptr<index_node> make_indexNode(int lvl, int min_val, leaf_node *leafnode);
+	static leaf_node* make_leafNode(int min);
+	bool insertLeaf(leaf_node* leaf, uint64_t key, const std::string& value);
+	bool deleteLeaf(leaf_node* leaf, uint64_t key);
 //concurrent operation will be implemented later
 
 private:
@@ -63,8 +65,8 @@ private:
 	// current level, not used in concurrent version
 	uint8_t _level;
 
-	std::shared_ptr<index_node> index_head;
-  	shared_ptr<leaf_node> leaf_head;
+	std::unique_ptr<index_node> index_head;
+  	leaf_node* leaf_head;
 
 };
 
