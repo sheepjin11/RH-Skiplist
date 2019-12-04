@@ -202,21 +202,27 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 		p->leaf->leaf_forward = next_leaf_forward;
 	}
   else
-  {
-  }
+  {}
+ 
 }
-//heejin must implement leaf node
+
 bool SkipList::erase(uint64_t key) {
-	std::vector<index_node*> update(_max_level+1);
-	index_node* x= index_head;
-	for(size_t i = _level; i >= 1; --i) {
-		index_node* next = x->forward[i];
-		while (next->min < key && next->forward[i]->min > key) {
-			x = next;
-		}
-		update[i] = x;
-	}
-	if(deleteLeaf(x->leaf, key)==false)
+
+    leaf_node* iter_node = leaf_head;
+    if(iter_node->leaf_forward->min != -1)
+    {
+      while(iter_node->leaf_forward->min < key)
+      {
+        iter_node = iter_node->leaf_forward;
+        if(iter_node->leaf_forward!=NULL && iter_node->leaf_forward->min < key)
+          continue;
+        else
+          break;
+      }
+    }
+ 
+ //min must be renewed 
+	if(deleteLeaf(iter_node, key)==false)
 	{
 		cout << "this key is not existing" << endl;
 	}
@@ -241,11 +247,18 @@ void SkipList::traverse()
 
 int main()
 {
+  int item_cnt;
 	cout << "skiplist !! " << endl;
+  cin >> item_cnt;
   SkipList* _skiplist = new SkipList(8);
-  for(uint64_t i=0;i<200;i++)
+  for(uint64_t i=0;i<item_cnt;i++)
   {
     _skiplist->insert(i,"a");
+  }
+
+  for(uint64_t i=0;i<item_cnt;i++)
+  {
+    _skiplist->erase(i);
   }
 
   _skiplist->traverse();  

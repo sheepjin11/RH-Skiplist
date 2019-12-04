@@ -63,8 +63,7 @@ private:
 	const uint8_t _max_level;
 
 	// current level, not used in concurrent version
-	uint8_t _level;
-
+  uint8_t _level;
 	index_node* index_head;
   leaf_node* leaf_head;
 
