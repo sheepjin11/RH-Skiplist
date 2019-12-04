@@ -57,12 +57,9 @@ bool SkipList::insertLeaf(leaf_node* leaf, uint64_t key, const std::string& valu
 	uint64_t val_addr = 2; // need to modify
 	if (!leaf->leaf_HT->insert(make_item(key,val_addr))) // if insert fails, return false. need to split.
   {
-    cout << "hash passed "<< endl;
 		return false;
   }
-  cout << "hash if not "<<endl;
 	leaf->BF->insert(to_string(key));
-    cout << "bf passed " << endl;
 	return true; // insert success.
 
 }
@@ -142,7 +139,6 @@ uint64_t SkipList::findNode(uint64_t key, std::vector<index_node>* preds,
 //leaf Get implementation
 
 void SkipList::insert(uint64_t key, const std::string& value) {
-  cout << "key is " << key << endl;
 	std::vector<index_node*> update(_max_level);
   for(size_t i=0;i<_max_level;i++)
   {
@@ -187,8 +183,6 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 //	if (!insertLeaf(x->leaf,key,value)) 
 	else if (!insertLeaf(update[0]->forward[0]->leaf,key,value)) 
   { // if insert is fail, need to split leaf node
-	cout << "error2 " << endl;	
-		//node split;
 		//받아야 할 인자 : hash table
 		leaf_node* before = x->leaf;
 		leaf_node* next_leaf = x->forward[0]->leaf; // level 0 일 때의 leaf
@@ -209,7 +203,6 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 	}
   else
   {
-    cout << "insert else "<< endl;
   }
 }
 //heejin must implement leaf node
@@ -231,14 +224,27 @@ bool SkipList::erase(uint64_t key) {
 	return true;
 }
 
+void SkipList::traverse()
+{
+  index_node* iter_node = this->index_head;
+  int num =0;
+  while(iter_node!=this->index_head && iter_node->min!=-1)
+  {
+    num++;
+    iter_node = iter_node->forward[0]; 
+  }
+  cout << "number of node is " << num << endl;
+}
 
 int main()
 {
 	cout << "skiplist !! " << endl;
   SkipList* _skiplist = new SkipList(8);
-  for(uint64_t i=0;i<10;i++)
+  for(uint64_t i=0;i<100;i++)
   {
     _skiplist->insert(i,"a");
   }
+
+  _skiplist->traverse();  
   cout << "inserted " << endl;
 }
