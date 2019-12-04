@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <cstddef>
 #include <string>
-
+#include <vector>
 using namespace std;
 using namespace kuku;
 
@@ -29,8 +29,10 @@ leaf_node::leaf_node(int min_val, KukuTable *HT)
 	}
 
 index_node* SkipList::make_indexNode(int lvl, int min_val,leaf_node *leafnode)
-{
-	return new index_node(lvl, min_val, leafnode);
+{ 
+  index_node* new_node =  new index_node(lvl, min_val, leafnode);
+  new_node->forward = *(new vector<index_node*>(lvl));
+	return new_node; 
 }
 
 leaf_node* SkipList::make_leafNode(int min_val)
@@ -44,17 +46,23 @@ leaf_node* SkipList::make_leafNode(int min_val)
 	item_type empty_item = make_item(0, 0);
 	KukuTable* newHT = new KukuTable(log_table_size,stash_size, loc_func_count, loc_func_seed,	max_probe, empty_item);
 	leaf_node* leafnode = new leaf_node(min_val, newHT);
-	bloom_filter* leafBF = new bloom_filter;
+//	bloom_filter* leafBF = new bloom_filter;
 	leafnode->BF = new bloom_filter();// size can be modified 
 
 	return leafnode;
 }
 bool SkipList::insertLeaf(leaf_node* leaf, uint64_t key, const std::string& value)
 {
-	uint64_t val_addr = 0; // need to modify
+	//uint64_t val_addr = 0; // need to modify
+	uint64_t val_addr = 2; // need to modify
 	if (!leaf->leaf_HT->insert(make_item(key,val_addr))) // if insert fails, return false. need to split.
+  {
+    cout << "hash passed "<< endl;
 		return false;
+  }
+  cout << "hash if not "<<endl;
 	leaf->BF->insert(to_string(key));
+    cout << "bf passed " << endl;
 	return true; // insert success.
 
 }
@@ -70,11 +78,14 @@ SkipList::SkipList(uint8_t max_level)
 	:_max_level(max_level),
 	 _level(1) {
 	// key,value for headnode is meanless
-	index_head = SkipList::make_indexNode(-1,-1,NULL); // head points NULL leaf node and its min value is -1
 	leaf_head = SkipList::make_leafNode(-1); // head points NULL leaf node and its min value is -1
-	for (int i = 0; i <= max_level; i++) {
-		index_head->forward[i] = SkipList::make_indexNode(i,-2, NULL);
-		leaf_head->leaf_forward = SkipList::make_leafNode(-1);
+	index_head = SkipList::make_indexNode(max_level,-1,leaf_head); // head points NULL leaf node and its min value is -1
+	leaf_tail = SkipList::make_leafNode(-1); // head points NULL leaf node and its min value is -1
+	index_tail = SkipList::make_indexNode(max_level,-1,leaf_tail); // head points NULL leaf node and its min value is -1
+  for (int i = 0; i < max_level; i++) {   
+    vector<index_node*>::iterator it;
+		index_head->forward[i] = index_tail;   
+		leaf_head->leaf_forward = leaf_tail; 
 	}
 }
 //do not modify anything
@@ -131,25 +142,52 @@ uint64_t SkipList::findNode(uint64_t key, std::vector<index_node>* preds,
 //leaf Get implementation
 
 void SkipList::insert(uint64_t key, const std::string& value) {
-	std::vector<index_node*> update(_max_level+1);
+  cout << "key is " << key << endl;
+	std::vector<index_node*> update(_max_level);
+  for(size_t i=0;i<_max_level;i++)
+  {
+    update[i] = this->index_head;
+  }
 	index_node* x = index_head;
-	for (size_t i = _level; i >= 1; --i) {
+  bool _head = false;
+	for (size_t i = _max_level-1; i >= 0; --i) {
 		index_node* next = x->forward[i];
+    if(next->min == -1) // 1st access or reach to tail
+    {
+      _head=true;
+      break;
+    }
 		while (next->forward[i]->min < key) {
 			x = next;
 		}
 		update[i] = x;
 	}
-	//x = x->forward[1];
-	if (!insertLeaf(x->leaf,key,value)) { // if insert is fail, need to split leaf node
+
 		uint8_t lvl = randomLevel();
 		if (lvl > _level) {
 			for (size_t i = _level+1; i <= lvl; i++) {
 				update[i] = index_head;//maybe should be modified
-			}
+		}
 			_level = lvl;
 		}
-		
+    else{}
+
+  if(_head && update[0]->forward[0]->min == -1)
+  {
+    uint8_t lvl =randomLevel();
+    leaf_node* x_leaf = make_leafNode(key);
+    x=make_indexNode(lvl, key, x_leaf);
+    for(int i=0;i<=lvl;i++)
+    {
+      x->forward[i] = update[i]->forward[i];
+      update[i]->forward[i] = x;
+    }
+  }
+
+//	if (!insertLeaf(x->leaf,key,value)) 
+	else if (!insertLeaf(update[0]->forward[0]->leaf,key,value)) 
+  { // if insert is fail, need to split leaf node
+	cout << "error2 " << endl;	
 		//node split;
 		//받아야 할 인자 : hash table
 		leaf_node* before = x->leaf;
@@ -169,6 +207,10 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 		before->leaf_forward = before_leaf_forward;
 		p->leaf->leaf_forward = next_leaf_forward;
 	}
+  else
+  {
+    cout << "insert else "<< endl;
+  }
 }
 //heejin must implement leaf node
 bool SkipList::erase(uint64_t key) {
@@ -194,7 +236,7 @@ int main()
 {
 	cout << "skiplist !! " << endl;
   SkipList* _skiplist = new SkipList(8);
-  for(int i=0;i<10;i++)
+  for(uint64_t i=0;i<10;i++)
   {
     _skiplist->insert(i,"a");
   }

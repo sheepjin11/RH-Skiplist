@@ -29,7 +29,7 @@ struct leaf_node
 	int min;
 	leaf_node* leaf_forward;
 	bloom_filter* BF;
-  	KukuTable* leaf_HT;	
+  KukuTable* leaf_HT;	
 };
 
 class SkipList {
@@ -68,6 +68,8 @@ private:
 	index_node* index_head;
   leaf_node* leaf_head;
 
+	index_node* index_tail;
+  leaf_node* leaf_tail;
 };
 
 #endif // __SKIPLIST_H__
