@@ -228,10 +228,13 @@ void SkipList::traverse()
 {
   index_node* iter_node = this->index_head;
   int num =0;
-  while(iter_node!=this->index_head && iter_node->min!=-1)
+  while(1)
   {
+    cout << num << "th node min value is " << iter_node->min << endl;
     num++;
-    iter_node = iter_node->forward[0]; 
+    iter_node = iter_node->forward[0];
+    if(iter_node->min==-1)
+      break; 
   }
   cout << "number of node is " << num << endl;
 }
@@ -240,7 +243,7 @@ int main()
 {
 	cout << "skiplist !! " << endl;
   SkipList* _skiplist = new SkipList(8);
-  for(uint64_t i=0;i<100;i++)
+  for(uint64_t i=0;i<200;i++)
   {
     _skiplist->insert(i,"a");
   }
