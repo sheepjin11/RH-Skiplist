@@ -71,7 +71,7 @@ bool SkipList::deleteLeaf(leaf_node* leaf, uint64_t key)
 		return false;
 	
 	uint64_t index = leaf->leaf_HT->getIndex(key);
-	leaf->leaf_HT->table(index) = make_item(0,0);;
+	leaf->leaf_HT->table(index) = make_item(0,0);
 
   //BF cannot delete element 
   return true;
@@ -103,21 +103,23 @@ int SkipList::randomLevel() const {
 }
 
 //in LEVELDB, FindGreaterOrEqual
-uint64_t SkipList::findNode(uint64_t key, std::vector<index_node>* preds,
-	std::vector<index_node>* succs, uint8_t* layer) { // return value address
+uint64_t SkipList::findNode(uint64_t key) { // return value address
 	index_node* prev = index_head;
 	bool found = false;
 	uint64_t val_addr;
-	assert(preds->size() >= _max_level+1);
-	assert(succs->size() >= _max_level+1);
+  index_node* curr;
 	for (size_t i = _max_level; i >= 1; --i) {
-		index_node* curr = prev->forward[i];
-		index_node* next = curr->forward[i];
-		while (next->min < key) {
-			prev = curr;
+		curr = prev->forward[i];
+		while (curr->forward[i]->min!=-1 && curr->min < key) {
 			curr = curr->forward[i];
 		}
-		if (!found && curr->min <= key && next->min > key) {
+    prev = curr;
+/*
+		(*preds)[i] = prev;
+		(*succs)[i] = curr;
+*/
+	}
+		if (!found && curr->min <= key) {
 			//search in leaf node
 			leaf_node* curr_leaf = curr->leaf;
 			if(curr_leaf->BF->contains(key))
@@ -127,16 +129,10 @@ uint64_t SkipList::findNode(uint64_t key, std::vector<index_node>* preds,
 				{
 					found=true;
 					val_addr = curr_leaf->leaf_HT->get(key);
-					*layer = i;
-          break;
+					//*layer = i;
 				}
 			}
 		}
-/*
-		(*preds)[i] = prev;
-		(*succs)[i] = curr;
-*/
-	}
 	if (!found)
 		return 0;
 	return val_addr;

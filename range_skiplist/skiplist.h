@@ -52,7 +52,7 @@ public:
 	// for debug
 	void traverse();
 
-  uint64_t findNode(uint64_t key, std::vector<index_node>* preds, std::vector<index_node>* succs, uint8_t* layer);
+  uint64_t findNode(uint64_t key);
 	index_node* make_indexNode(int lvl, int min_val, leaf_node *leafnode);
 	leaf_node* make_leafNode(int min);
 	bool insertLeaf(leaf_node* leaf, uint64_t key, const std::string& value);
