@@ -86,10 +86,9 @@ SkipList::SkipList(uint8_t max_level)
 	leaf_tail = SkipList::make_leafNode(-1); // head points NULL leaf node and its min value is -1
 	index_tail = SkipList::make_indexNode(max_level,-1,leaf_tail); // head points NULL leaf node and its min value is -1
   for (int i = 0; i < max_level; i++) {   
-    vector<index_node*>::iterator it;
-		index_head->forward[i] = index_tail;   
+		index_head->forward[i] = index_tail; 
+	}  
 		leaf_head->leaf_forward = leaf_tail; 
-	}
 }
 //do not modify anything
 int SkipList::randomLevel() const {
@@ -144,17 +143,31 @@ void SkipList::insert(uint64_t key, const std::string& value) {
   }
 	index_node* x = index_head;
   bool _head = false;
-	for (size_t i = _max_level-1; i >= 0; --i) {
+	for (size_t i = _max_level-1; i >= 0; i--) {
 		index_node* next = x->forward[i];
-    if(next->min == -1) // 1st access or reach to tail
+    index_node* prev = x;
+    if(i==0 && next->min == -1)
     {
-      _head=true;
-      break;
+        _head=true;
+        break;
     }
-		while (next->forward[i]->min < key) {
-			x = next;
+    else if(next->min == -1) // 1st access or reach to tail
+    {   
+      update[i]=x;
+    }
+    else{
+		while (x->forward[i]->min < key) {
+      if(x->forward[i]->min == -1)
+      {
+        break;
+      }
+      else
+      {
+			  x = x->forward[i]; 
+      }
 		}
 		update[i] = x;
+    }
 	}
 
 		uint8_t lvl = randomLevel();
@@ -178,16 +191,26 @@ void SkipList::insert(uint64_t key, const std::string& value) {
     }
   }
 
-//	if (!insertLeaf(x->leaf,key,value)) 
 	else if (!insertLeaf(update[0]->forward[0]->leaf,key,value)) 
   { // if insert is fail, need to split leaf node
 		//받아야 할 인자 : hash table
+    cout << "hit : " << key << endl;
 		leaf_node* before = x->leaf;
 		leaf_node* next_leaf = x->forward[0]->leaf; // level 0 일 때의 leaf
-		int new_min = (x->min+next_leaf->min)/2; // comment : x가 아니라 before->min 아닌가?!
-		leaf_node* new_leaf = make_leafNode(new_min);
-		//기존 hash table에서 new hash table로 key,value 이동 필요 
+//		int new_min = (x->min+next_leaf->min)/2; // comment : x가 아니라 before->min 아닌가?!
+	  int new_min = (x->min+key)/2;
+  	assert(0);
+    leaf_node* new_leaf = make_leafNode(new_min);
+    index_node* new_index = make_indexNode(lvl, new_min, new_leaf);
 
+    before->leaf_forward = new_leaf;
+    new_leaf->leaf_forward = next_leaf;
+
+    for(int i=0;i<=lvl;i++)
+    {
+      new_index->forward[i] = update[i]->forward[i];
+      update[i]->forward[i] = new_index;
+    }
 		size_t col_count = 8; // log_table_size
 		for (size_t row = 0; row < 8; row++) // log_table_size
 		{
@@ -262,7 +285,7 @@ int main()
 {
 	cout << "skiplist !! " << endl;
   SkipList* _skiplist = new SkipList(8);
-  for(uint64_t i=1;i<200;i++)
+  for(uint64_t i=1;i<500;i++)
   {
     _skiplist->insert(i,"a");
   }
