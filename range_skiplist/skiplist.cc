@@ -71,7 +71,7 @@ bool SkipList::deleteLeaf(leaf_node* leaf, uint64_t key)
 		return false;
 	
 	uint64_t index = leaf->leaf_HT->getIndex(key);
-	leaf->leaf_HT->table(index) = make_item(0,0);
+	//leaf->leaf_HT->table(index) = make_item(0,0);
 
   //BF cannot delete element 
   return true;
@@ -108,16 +108,12 @@ uint64_t SkipList::findNode(uint64_t key) { // return value address
 	bool found = false;
 	uint64_t val_addr;
   index_node* curr;
-	for (size_t i = _max_level; i >= 1; --i) {
+	for (int i = _max_level-1; i >= 0; i--) {
 		curr = prev->forward[i];
-		while (curr->forward[i]->min!=-1 && curr->min < key) {
+		while (curr->min!=-1 && curr->min < key) {
+      prev = curr;
 			curr = curr->forward[i];
 		}
-    prev = curr;
-/*
-		(*preds)[i] = prev;
-		(*succs)[i] = curr;
-*/
 	}
 		if (!found && curr->min <= key) {
 			//search in leaf node
@@ -204,7 +200,7 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 					if (pair[0] >= new_leaf->min) // have to migrate 
 					{
 						new_leaf->leaf_HT->insert(pair);
-						before->leaf_HT->table(index) = make_item(0,0);
+						//before->leaf_HT->table(index) = make_item(0,0);
 					}
 						
 				}
@@ -212,12 +208,6 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 
 		}
 
-		// for (size_t i = 0; i < table.stash().size(); i++)
-		// {
-		// 	cout << i << ": " << table.stash(i) << endl;
-		// }
-
-		
     	leaf_node* new_leaf_pointer = new_leaf;
 		auto p = make_indexNode(randomLevel(), new_min, new_leaf_pointer);	
 		index_node* sp = p;
@@ -272,11 +262,14 @@ int main()
 {
 	cout << "skiplist !! " << endl;
   SkipList* _skiplist = new SkipList(8);
-  for(uint64_t i=0;i<200;i++)
+  for(uint64_t i=1;i<200;i++)
   {
     _skiplist->insert(i,"a");
   }
-
+  for(uint64_t i=1;i<200;i++)
+  {
+    _skiplist->findNode(i);
+  }
   _skiplist->traverse();  
   cout << "inserted " << endl;
 }
