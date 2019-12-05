@@ -85,9 +85,9 @@ namespace kuku
             return insert(item, 0);
         }
 		
-		uint64_t get(uint64_t key);
+		uint64_t get(uint64_t key) const;
 		
-		uint64_t getIndex(uint64_t key);
+		uint64_t getIndex(uint64_t key) const;
 
         /*
         Returns true of the provided item is contained in the hash table.

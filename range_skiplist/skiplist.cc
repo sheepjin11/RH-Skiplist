@@ -67,17 +67,12 @@ bool SkipList::insertLeaf(leaf_node* leaf, uint64_t key, const std::string& valu
 bool SkipList::deleteLeaf(leaf_node* leaf, uint64_t key)
 {
   //hash delete
+	if( !key ) //if key is 0
+		return false;
+	
+	uint64_t index = leaf->leaf_HT->getIndex(key);
+	leaf->leaf_HT->table(index) = make_item(0,0);;
 
-	// item_type pair = leaf->leaf_HT->table(index);
-	// if (pair[0] || pair[1]) // if key exists
-	// {
-	// 	if (pair[0] >= new_leaf->min) // have to migrate 
-	// 	{
-	// 		new_leaf->leaf_HT->insert(pair);
-	// 		before->leaf_HT->table(index) = make_item(0,0);
-	// 	}
-						
-	// }
   //BF cannot delete element 
   return true;
 }

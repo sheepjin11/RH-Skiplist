@@ -124,28 +124,30 @@ namespace kuku
             }
         }
 
+		// if key already exists
+		if (query(index_item))
+		{
+			uint64_t index = getIndex(item[0]);
+			table_[index][1] = item[1];
+			return true;
+		}
         // Choose random location index
         size_t loc_index = size_t(rd_()) % loc_funcs_.size();
         location_type loc = loc_funcs_[loc_index](index_item);
-        auto old_item = swap(item, loc); // how to know whether old item has same key as index_item ? need to check 
+        auto old_item = swap(item, loc); 
 
         if (is_empty_item(old_item))
         {
             inserted_items_++;
             return true;
         }
-		else if (are_equal_item(old_item, index_item))
-		{
-			inserted_items_++;
-            return true;
-		}
         else
         {
             return insert(old_item, level + 1);
         }
     }
 	
-	uint64_t KukuTable::get(uint64_t key)
+	uint64_t KukuTable::get(uint64_t key) const
 	{
 		item_type index_item = make_item(key, 0);
 		// Search the hash table
@@ -172,9 +174,12 @@ namespace kuku
 		
 	}
 	
-	uint64_t KukuTable::getIndex(uint64_t key)
+	uint64_t KukuTable::getIndex(uint64_t key) const
 	{
 		item_type index_item = make_item(key, 0);
+		if ( !key )
+			return 0;
+		
 		// Search the hash table
         auto lfc = loc_func_count();
         for (size_t i = 0; i < lfc; i++)

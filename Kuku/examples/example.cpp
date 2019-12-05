@@ -22,9 +22,15 @@ void print_table(const KukuTable &table)
         for (size_t col = 0; col < col_count; col++)
         {
             size_t index = row * col_count + col;
-            cout << setw(5) << index << ": " << setw(5) << table.table(index) << "\t";
+			item_type pair = table.table(index);
+			uint64_t a = table.getIndex(0);
+			uint64_t b = table.get(pair[0]);
+            cout << setw(5) << table.getIndex(pair[0]) << ": " << setw(5) << pair[0] << " " << b<< "\t";
+
         }
         cout << endl;
+
+		
     }
 
     cout << endl << "Stash: " << endl;
