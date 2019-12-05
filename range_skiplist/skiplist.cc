@@ -39,7 +39,7 @@ leaf_node* SkipList::make_leafNode(int min_val)
 {
 	//kuku hash default
 	int log_table_size = 8;
-	size_t stash_size = 2;
+	size_t stash_size = 0;
 	size_t loc_func_count = 4;
 	item_type loc_func_seed = make_random_item();
 	uint64_t max_probe = 100;
@@ -67,6 +67,17 @@ bool SkipList::insertLeaf(leaf_node* leaf, uint64_t key, const std::string& valu
 bool SkipList::deleteLeaf(leaf_node* leaf, uint64_t key)
 {
   //hash delete
+
+	// item_type pair = leaf->leaf_HT->table(index);
+	// if (pair[0] || pair[1]) // if key exists
+	// {
+	// 	if (pair[0] >= new_leaf->min) // have to migrate 
+	// 	{
+	// 		new_leaf->leaf_HT->insert(pair);
+	// 		before->leaf_HT->table(index) = make_item(0,0);
+	// 	}
+						
+	// }
   //BF cannot delete element 
   return true;
 }
@@ -189,7 +200,34 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 		int new_min = (x->min+next_leaf->min)/2; // comment : x가 아니라 before->min 아닌가?!
 		leaf_node* new_leaf = make_leafNode(new_min);
 		//기존 hash table에서 new hash table로 key,value 이동 필요 
-    leaf_node* new_leaf_pointer = new_leaf;
+
+		size_t col_count = 8; // log_table_size
+		for (size_t row = 0; row < 8; row++) // log_table_size
+		{
+			for (size_t col = 0; col < col_count; col++)
+			{
+				size_t index = row * col_count + col;
+				item_type pair = before->leaf_HT->table(index);
+				if (pair[0] || pair[1]) // if key exists
+				{
+					if (pair[0] >= new_leaf->min) // have to migrate 
+					{
+						new_leaf->leaf_HT->insert(pair);
+						before->leaf_HT->table(index) = make_item(0,0);
+					}
+						
+				}
+			}
+
+		}
+
+		// for (size_t i = 0; i < table.stash().size(); i++)
+		// {
+		// 	cout << i << ": " << table.stash(i) << endl;
+		// }
+
+		
+    	leaf_node* new_leaf_pointer = new_leaf;
 		auto p = make_indexNode(randomLevel(), new_min, new_leaf_pointer);	
 		index_node* sp = p;
 		for (size_t i = 1; i <= lvl; ++i) {
@@ -202,27 +240,21 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 		p->leaf->leaf_forward = next_leaf_forward;
 	}
   else
-  {}
- 
+  {
+  }
 }
-
+//heejin must implement leaf node
 bool SkipList::erase(uint64_t key) {
-
-    leaf_node* iter_node = leaf_head;
-    if(iter_node->leaf_forward->min != -1)
-    {
-      while(iter_node->leaf_forward->min < key)
-      {
-        iter_node = iter_node->leaf_forward;
-        if(iter_node->leaf_forward!=NULL && iter_node->leaf_forward->min < key)
-          continue;
-        else
-          break;
-      }
-    }
- 
- //min must be renewed 
-	if(deleteLeaf(iter_node, key)==false)
+	std::vector<index_node*> update(_max_level+1);
+	index_node* x= index_head;
+	for(size_t i = _level; i >= 1; --i) {
+		index_node* next = x->forward[i];
+		while (next->min < key && next->forward[i]->min > key) {
+			x = next;
+		}
+		update[i] = x;
+	}
+	if(deleteLeaf(x->leaf, key)==false)
 	{
 		cout << "this key is not existing" << endl;
 	}
@@ -247,18 +279,11 @@ void SkipList::traverse()
 
 int main()
 {
-  int item_cnt;
 	cout << "skiplist !! " << endl;
-  cin >> item_cnt;
   SkipList* _skiplist = new SkipList(8);
-  for(uint64_t i=0;i<item_cnt;i++)
+  for(uint64_t i=0;i<200;i++)
   {
     _skiplist->insert(i,"a");
-  }
-
-  for(uint64_t i=0;i<item_cnt;i++)
-  {
-    _skiplist->erase(i);
   }
 
   _skiplist->traverse();  

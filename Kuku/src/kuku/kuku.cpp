@@ -168,7 +168,34 @@ namespace kuku
                 return stash_[loc][1];
             }
         }
+		return 0;
 		
+	}
+	
+	uint64_t KukuTable::getIndex(uint64_t key)
+	{
+		item_type index_item = make_item(key, 0);
+		// Search the hash table
+        auto lfc = loc_func_count();
+        for (size_t i = 0; i < lfc; i++)
+        {
+            auto loc = location(index_item, i);
+			//std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::endl;
+            if (are_equal_item(table_[loc], index_item))
+            {
+                return loc;
+            }
+        }
+
+       /* // Search the stash
+        for (location_type loc = 0; loc < stash_.size(); loc++)
+        {
+            if (are_equal_item(stash_[loc], index_item))
+            {
+                return stash_[loc][1];
+            }
+        }*/
+		return 0;
 		
 	}
 }

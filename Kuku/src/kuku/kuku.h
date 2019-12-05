@@ -86,6 +86,8 @@ namespace kuku
         }
 		
 		uint64_t get(uint64_t key);
+		
+		uint64_t getIndex(uint64_t key);
 
         /*
         Returns true of the provided item is contained in the hash table.
