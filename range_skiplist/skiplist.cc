@@ -94,7 +94,7 @@ SkipList::SkipList(int max_level)
 int SkipList::randomLevel() const {
 	static thread_local std::mt19937 generator(std::chrono::system_clock::now().time_since_epoch().count());
     std::uniform_int_distribution<int> distribution(0,1);
-	uint8_t lvl = 1;
+	int lvl = 1;
 	while(distribution(generator) && lvl < _max_level) {
 		++lvl;
 	}
@@ -136,65 +136,57 @@ uint64_t SkipList::findNode(uint64_t key) { // return value address
 //leaf Get implementation
 
 void SkipList::insert(uint64_t key, const std::string& value) {
-	std::vector<index_node*> update(_max_level);
- 
-  for(int i=0;i<_max_level;i++)
-  {
-    update[i] = this->index_head;
-  }
-	index_node* x = this->index_head;
+
   bool _head = false;
-	for (int i = _max_level-1; i >= 0; i--) {
-		index_node* next = x->forward[i];
-    index_node* prev = x;
-    if(i==0 && next->min == -1)
+	int lvl = randomLevel();  
+  index_node* update[lvl];
+	for (int i = lvl; i >-1; i--) {
+	  index_node* x = this->index_head;
+/*
+    if(x->forward[i]->min == MAX_INT)
     {
-        _head=true;
-        break;
-    }
-    else if(next->min == -1) // 1st access or reach to tail
-    {   
       update[i]=x;
     }
-    else{
-		while (x->forward[i]->min < key) {
-      if(x->forward[i]->min == -1)
+    else    
+    {
+      while(x->min < key)
       {
-        break;
+        if(x->forward[i]->min==MAX_INT)
+          break;
+        else
+          x = x->forward[i];
       }
-      else
-      {
-			  x = x->forward[i]; 
-      }
-		}
-		update[i] = x;
+      update[i] = x;
     }
-	}
-		int lvl = randomLevel();
-    for (int i=lvl+1; i<_max_level; i++) {
-				update[i] = index_head;//maybe should be modified
-		}
+*/
+      while(x->min < key)
+      {
+        if(x->forward[i]->min==MAX_INT)
+          break;
+        else
+          x = x->forward[i];
+      }
+      update[i] = x;
 
+	}  
   if (_head || !insertLeaf(update[0]->forward[0]->leaf,key,value)) 
-  { // if insert is fail, need to split leaf node
-		//받아야 할 인자 : hash table   
+  {   
     cout << "hit : " << key << endl;
-		leaf_node* before = x->leaf;
-		leaf_node* next_leaf = x->forward[0]->leaf; // level 0 일 때의 leaf
-		int new_min = (x->min+next_leaf->min)/2; // comment : x가 아니라 before->min 아닌가?!
+    index_node* x = update[0]->forward[0];
+		int new_min = (x->min+x->forward[0]->min)/2; // comment : x가 아니라 before->min 아닌가?!
     leaf_node* new_leaf = make_leafNode(new_min);
     index_node* new_index = make_indexNode(lvl, new_min, new_leaf);
-
-    before->leaf_forward = new_leaf;
-    new_leaf->leaf_forward = next_leaf;
-
     for(int i=0;i<=lvl;i++)
     {
       new_index->forward[i] = update[i]->forward[i];
       update[i]->forward[i] = new_index;
     }
-		int col_count = 8; 
-	//	for (int row = 0; row <  table.table_size() / col_count; row++) 
+    new_leaf->leaf_forward = x->leaf->leaf_forward;
+    x->leaf->leaf_forward = new_leaf; 
+
+
+		int col_count = 8;
+    leaf_node* before = x->leaf; 
 		for (int row = 0; row <  before->leaf_HT->table_size() / col_count; row++) 
 		{
 			for (int col = 0; col < col_count; col++)
@@ -211,20 +203,7 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 						
 				}
 			}
-
 		}
-
-    	leaf_node* new_leaf_pointer = new_leaf;
-		auto p = make_indexNode(randomLevel(), new_min, new_leaf_pointer);	
-		index_node* sp = p;
-		for (int i = 1; i <= lvl; ++i) {
-			sp->forward[i] = update[i]->forward[i];
-			update[i]->forward[i] = sp;
-		} // for index node 
-  		leaf_node* before_leaf_forward(p->leaf);
-    	leaf_node* next_leaf_forward(next_leaf);
-		before->leaf_forward = before_leaf_forward;
-		p->leaf->leaf_forward = next_leaf_forward;
 	}
   else
   {
@@ -253,11 +232,10 @@ void SkipList::makeNode(int node_num)
   for(int node_iter = 0; node_iter<node_num; node_iter++)
   {
     int lvl = randomLevel();
-    int new_min = MAX_INT/(node_num)*(node_iter+1);
+    int new_min = MAX_INT/(node_num)*(node_iter);
     leaf_node* new_leaf = make_leafNode(new_min);
     index_node* new_index = make_indexNode(lvl, new_min, new_leaf);
     index_node* update[this->_max_level];
-      cout << "lvl is " << node_iter << endl;
     //for debugging
 /*    for(int i=0;i<this->_max_level;i++)
     {
@@ -312,16 +290,16 @@ int main()
 {
   SkipList* _skiplist = new SkipList(8);
   _skiplist->makeNode(10);
-/*
-  for(uint64_t i=1;i<500;i++)
+
+  _skiplist->traverse(); 
+ for(uint64_t i=1;i<20000;i++)
   {
     _skiplist->insert(i,"a");
   }
-  for(uint64_t i=1;i<200;i++)
+/*  for(uint64_t i=1;i<200;i++)
   {
     _skiplist->findNode(i);
   }
 */
-  _skiplist->traverse(); 
   cout << "inserted " << endl;
 }
