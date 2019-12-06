@@ -6,13 +6,11 @@
 #include <random>
 #include <chrono>
 #include "skiplist.h"
-#include <iostream>
 #include <iomanip>
 #include <cstddef>
 #include <string>
 #include <vector>
 #include <limits.h>
-#include <libpmemobj.h>
 
 using namespace std;
 using namespace kuku;
@@ -53,13 +51,16 @@ TOID(leaf_node) SkipList::make_leafNode(int min_val)
 	//KukuTable* newHT = new KukuTable(log_table_size,stash_size, loc_func_count, loc_func_seed,	max_probe, empty_item);
   //pmem
   TOID(KukuTable) newHT;
-  POBJ_ALLOC(pop, &newHT, KukuTable, sizeof(KukuTable), NULL, NULL);
+  /*
   D_RW(newHT)->log_table_size = log_table_size;
   D_RW(newHT)->stash_size = stash_size;
   D_RW(newHT)->log_func_count = log_func_count;
   D_RW(newHT)->log_func_seed = log_func_seed;
   D_RW(newHT)->max_probe = max_probe;
   D_RW(newHT)->emtpy_item = empty_item;
+  */
+  D_RW(newHT)->setParameters(log_table_size, stash_size, loc_func_seed, max_probe, empty_item);
+  POBJ_ALLOC(pop, &newHT, KukuTable, sizeof(KukuTable), NULL, NULL);
   TOID(bloom_filter) newBF;
   POBJ_ALLOC(pop, &newBF, bloom_filter, sizeof(bloom_filter), NULL, NULL);
 
@@ -133,12 +134,17 @@ int SkipList::findNode(int key) { // return value address
 	index_node* prev = index_head;
 	bool found = false;
 	int val_addr;
-  index_node* curr;
+  	index_node* curr;
 	for (int i = _max_level-1; i >= 0; i--) {
-		curr = prev->forward[i];
-		while (curr->min!=-1 && curr->min < key) {
-      			prev = curr;
-			curr = curr->forward[i];
+		curr = prev;
+		while (curr->min!=MAX_INT && curr->forward[i]!=NULL) {
+      			if(curr->forward[i]->min==MAX_INT || curr->forward[i]->min > key)
+					break;
+			else
+			{
+				prev = curr;
+				curr = curr->forward[i];
+			}
 		}
 	}
 		if (!found && curr->min <= key) {
