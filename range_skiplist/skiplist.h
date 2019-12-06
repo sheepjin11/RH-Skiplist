@@ -18,8 +18,8 @@ struct index_node
   ~index_node();
   int min;
   struct leaf_node *leaf;
-  vector<index_node*> forward;
   int level;
+  vector<index_node*> forward; 
 };
 
 struct leaf_node
@@ -38,13 +38,13 @@ public:
 	SkipList(int max_level);
 
 	// thread-unsafe
-	void insert(uint64_t key, const std::string& value);
+	void insert(int key, const std::string& value);
 
 	// thread-unsafe
-	bool erase(uint64_t key);
+	bool erase(int key);
 
 	// thread-unsafe
-	bool contains(uint64_t key); 
+	bool contains(int key); 
 
 	// thread-safe
 	int randomLevel() const;
@@ -53,11 +53,11 @@ public:
 	void traverse();
 
   void makeNode(int node_num);
-  uint64_t findNode(uint64_t key);
+  int findNode(int key);
 	index_node* make_indexNode(int lvl, int min_val, leaf_node *leafnode);
 	leaf_node* make_leafNode(int min);
-	bool insertLeaf(leaf_node* leaf, uint64_t key, const std::string& value);
-	bool deleteLeaf(leaf_node* leaf, uint64_t key);
+	bool insertLeaf(leaf_node* leaf, int key, const std::string& value);
+	bool deleteLeaf(leaf_node* leaf, int key);
 //concurrent operation will be implemented later
 
 private:

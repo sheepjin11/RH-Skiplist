@@ -33,7 +33,9 @@ leaf_node::leaf_node(int min_val, KukuTable *HT)
 index_node* SkipList::make_indexNode(int lvl, int min_val,leaf_node *leafnode)
 { 
   index_node* new_node =  new index_node(lvl, min_val, leafnode);
-  new_node->forward = *(new vector<index_node*>(lvl));
+  new_node->forward = *(new vector<index_node*>(lvl+1));
+  for(int i=0;i<lvl+1;i++)
+    new_node->forward[i] = NULL;
 	return new_node; 
 }
 
@@ -44,18 +46,17 @@ leaf_node* SkipList::make_leafNode(int min_val)
 	int stash_size = 0;
 	int loc_func_count = 4;
 	item_type loc_func_seed = make_random_item();
-	uint64_t max_probe = 100;
+	int max_probe = 100;
 	item_type empty_item = make_item(0, 0);
 	KukuTable* newHT = new KukuTable(log_table_size,stash_size, loc_func_count, loc_func_seed,	max_probe, empty_item);
 	leaf_node* leafnode = new leaf_node(min_val, newHT);
-//	bloom_filter* leafBF = new bloom_filter;
 	leafnode->BF = new bloom_filter();// size can be modified 
 
 	return leafnode;
 }
-bool SkipList::insertLeaf(leaf_node* leaf, uint64_t key, const std::string& value)
+bool SkipList::insertLeaf(leaf_node* leaf, int key, const std::string& value)
 {
-	//uint64_t val_addr = 0; // need to modify
+	//int val_addr = 0; // need to modify
 	uint64_t val_addr = 2; // need to modify
 	if (!leaf->leaf_HT->insert(make_item(key,val_addr))) // if insert fails, return false. need to split.
   {
@@ -66,7 +67,7 @@ bool SkipList::insertLeaf(leaf_node* leaf, uint64_t key, const std::string& valu
 
 }
 
-bool SkipList::deleteLeaf(leaf_node* leaf, uint64_t key)
+bool SkipList::deleteLeaf(leaf_node* leaf, int key)
 {
   //hash delete
 
@@ -102,10 +103,10 @@ int SkipList::randomLevel() const {
 }
 
 //in LEVELDB, FindGreaterOrEqual
-uint64_t SkipList::findNode(uint64_t key) { // return value address
+int SkipList::findNode(int key) { // return value address
 	index_node* prev = index_head;
 	bool found = false;
-	uint64_t val_addr;
+	int val_addr;
   index_node* curr;
 	for (int i = _max_level-1; i >= 0; i--) {
 		curr = prev->forward[i];
@@ -135,21 +136,14 @@ uint64_t SkipList::findNode(uint64_t key) { // return value address
 
 //leaf Get implementation
 
-void SkipList::insert(uint64_t key, const std::string& value) {
+void SkipList::insert(int key, const std::string& value) {
 
   bool _head = false;
 	int lvl = randomLevel();  
   index_node* update[lvl];
 	for (int i = lvl; i >-1; i--) {
 	  index_node* x = this->index_head;
-/*
-    if(x->forward[i]->min == MAX_INT)
-    {
-      update[i]=x;
-    }
-    else    
-    {
-      while(x->min < key)
+      while(x->min < key && x->forward[i] != NULL)
       {
         if(x->forward[i]->min==MAX_INT)
           break;
@@ -157,17 +151,6 @@ void SkipList::insert(uint64_t key, const std::string& value) {
           x = x->forward[i];
       }
       update[i] = x;
-    }
-*/
-      while(x->min < key)
-      {
-        if(x->forward[i]->min==MAX_INT)
-          break;
-        else
-          x = x->forward[i];
-      }
-      update[i] = x;
-
 	}  
   if (_head || !insertLeaf(update[0]->forward[0]->leaf,key,value)) 
   {   
@@ -210,10 +193,10 @@ void SkipList::insert(uint64_t key, const std::string& value) {
   }
 }
 //heejin must implement leaf node
-bool SkipList::erase(uint64_t key) {
+bool SkipList::erase(int key) {
 	std::vector<index_node*> update(_max_level+1);
 	index_node* x= index_head;
-	for(int i = _level; i >= 1; --i) {
+	for(int i = _max_level; i >= 1; --i) {
 		index_node* next = x->forward[i];
 		while (next->min < key && next->forward[i]->min > key) {
 			x = next;
@@ -261,7 +244,7 @@ void SkipList::makeNode(int node_num)
         update[i] = index_iter;
       } 
     }
-    for(int i=0;i<lvl;i++)
+    for(int i=0;i<lvl+1;i++)
     {
       new_index->forward[i] = update[i]->forward[i];
       update[i]->forward[i] = new_index;
@@ -292,11 +275,11 @@ int main()
   _skiplist->makeNode(10);
 
   _skiplist->traverse(); 
- for(uint64_t i=1;i<20000;i++)
+ for(int i=1;i<20000;i++)
   {
     _skiplist->insert(i,"a");
   }
-/*  for(uint64_t i=1;i<200;i++)
+/*  for(int i=1;i<200;i++)
   {
     _skiplist->findNode(i);
   }
