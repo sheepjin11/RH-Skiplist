@@ -10,7 +10,7 @@
 #include <memory>
 #include <stdexcept>
 #include <set>
-
+#include <iomanip>
 namespace kuku
 {
     class QueryResult
@@ -85,10 +85,18 @@ namespace kuku
             return insert(item, 0);
         }
 		
+		inline bool Delete(uint64_t key)
+		{
+			return Delete(make_item(key,0));
+		}
+			
 		uint64_t get(uint64_t key) const;
 		
 		uint64_t getIndex(uint64_t key) const;
 
+		bool Delete(uint64_t key) const;
+			
+		void print_table() const;
         /*
         Returns true of the provided item is contained in the hash table.
         */
@@ -213,6 +221,8 @@ namespace kuku
         */
         bool insert(item_type item, std::uint64_t level);
 
+		// delete
+		bool Delete(item_type index_item);
         /*
         Swap an item in the table with a given item.
         */

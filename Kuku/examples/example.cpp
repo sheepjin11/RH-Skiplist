@@ -14,7 +14,7 @@ ostream &operator <<(ostream &stream, item_type item)
     return stream;
 }
 
-void print_table(const KukuTable &table)
+void print_table(KukuTable &table)
 {
     size_t col_count = 8;
     for (size_t row = 0; row < table.table_size() / col_count; row++)
@@ -25,7 +25,16 @@ void print_table(const KukuTable &table)
 			item_type pair = table.table(index);
 			uint64_t a = table.getIndex(0);
 			uint64_t b = table.get(pair[0]);
-            cout << setw(5) << table.getIndex(pair[0]) << ": " << setw(5) << pair[0] << " " << b<< "\t";
+			if (b) {
+				cout << setw(5) << table.getIndex(pair[0]) << ": " << setw(5) << pair[0] << " " << b<< endl;
+				//table.Delete(uint64_t(pair[0]));
+
+				// pair = table.table(index);
+				// a = table.getIndex(0);
+				// b = table.get(pair[0]);
+
+				// cout << setw(5) << table.getIndex(pair[0]) << ": " << setw(5) << pair[0] << " " << b<< endl;
+			}
 
         }
         cout << endl;
@@ -88,15 +97,25 @@ int main(int argc, char *argv[])
                 cout << "Leftover item: " << table.last_insert_fail_item() << endl << endl;
                 break;
             }
-			cout << "------------------------------------" <<endl;
-			cout << "round_counter+1 = "
-                    << round_counter+1 << ", i+1 = " << i+1 << endl;
-			cout << "("<< i+1 << ", " << round_counter+1  <<") item : " << table.query(item) << endl;
-			cout << "("<< i+1 << ", " << 0 <<") item : " << table.query(make_item(i+1,0)) <<endl;
+			//cout << "------------------------------------" <<endl;
+			//cout << "round_counter+1 = "
+            //        << round_counter+1 << ", i+1 = " << i+1 << endl;
+			//cout << "("<< i+1 << ", " << round_counter+1  <<") item : " << table.query(item) << endl;
+			//cout << "("<< i+1 << ", " << 0 <<") item : " << table.query(make_item(i+1,0)) <<endl;
         }
 
         print_table(table);
 
+		cout << "my print table function "<< endl;
+		table.print_table();
+			
+		size_t index = 3;
+			item_type pair = table.table(index);
+			uint64_t a = table.getIndex(0);
+			uint64_t b = table.get(pair[0]);
+            
+			table.Delete(uint64_t(pair[0]));
+		cout << setw(5) << table.getIndex(pair[0]) << ": " << setw(5) << pair[0] << " " << b<< endl;
         if (!table.is_empty_item(table.last_insert_fail_item()))
         {
             break;

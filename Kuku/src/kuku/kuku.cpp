@@ -203,4 +203,58 @@ namespace kuku
 		return 0;
 		
 	}
+	
+	bool KukuTable::Delete(item_type index_item)
+	{
+		
+		// Search the hash table
+        auto lfc = loc_func_count();
+        for (size_t i = 0; i < lfc; i++)
+        {
+            auto loc = location(index_item, i);
+			//std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::endl;
+            if (are_equal_item(table_[loc], index_item))
+            {
+				table_[loc] = make_zero_item();
+                return true;
+            }
+        }
+
+		return false; // key does not exist
+		
+       /* // Search the stash
+        for (location_type loc = 0; loc < stash_.size(); loc++)
+        {
+            if (are_equal_item(stash_[loc], index_item))
+            {
+                return stash_[loc][1];
+            }
+        }*/
+
+		
+	}
+	
+	void KukuTable::print_table() const
+	{
+		uint64_t col_count = 8;
+		for (uint64_t row = 0; row < table_size() / col_count; row++)
+		{
+			for (uint64_t col = 0; col < col_count; col++)
+			{
+				uint64_t index = row * col_count + col;
+				item_type pair = table_[index];
+				cout << setw(5) << index << ": " << setw(5) << pair[0] << " " << pair[1] << "\t";	
+
+			}
+			cout << endl;
+		}
+
+		cout << endl << "Stash: " << endl;
+		for (size_t i = 0; i < stash().size(); i++)
+		{
+			item_type pair = stash(i);
+			cout << i << ": " << pair[0] << " " << pair[1] << endl;
+		}
+		cout << endl;
+	}
 }

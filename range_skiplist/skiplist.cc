@@ -69,11 +69,9 @@ bool SkipList::insertLeaf(leaf_node* leaf, uint64_t key, const std::string& valu
 bool SkipList::deleteLeaf(leaf_node* leaf, uint64_t key)
 {
   //hash delete
-	if( !key ) //if key is 0
+
+	if ( !leaf->leaf_HT->Delete(key)) // key does not exist
 		return false;
-	
-	uint64_t index = leaf->leaf_HT->getIndex(key);
-	//leaf->leaf_HT->table(index) = make_item(0,0);
 
   //BF cannot delete element 
   return true;
@@ -212,8 +210,8 @@ void SkipList::insert(uint64_t key, const std::string& value) {
       new_index->forward[i] = update[i]->forward[i];
       update[i]->forward[i] = new_index;
     }
-		size_t col_count = 8; // log_table_size
-		for (size_t row = 0; row < 8; row++) // log_table_size
+		size_t col_count = 8; 
+		for (size_t row = 0; row <  table.table_size() / col_count; row++) 
 		{
 			for (size_t col = 0; col < col_count; col++)
 			{
@@ -224,7 +222,7 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 					if (pair[0] >= new_leaf->min) // have to migrate 
 					{
 						new_leaf->leaf_HT->insert(pair);
-						before->leaf_HT->table(index) = make_item(0,0);
+						before->leaf_HT->Delete(pair[0]);
 					}
 						
 				}
