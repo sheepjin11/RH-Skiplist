@@ -49,6 +49,8 @@ stdexcept
 -
 set
 -
+iomanip
+-
 
 /usr/local/include/Kuku-1.1/kuku/locfunc.h
 kuku/common.h

@@ -57,6 +57,8 @@ stdexcept
 -
 set
 -
+iomanip
+-
 
 kuku/locfunc.h
 kuku/common.h
