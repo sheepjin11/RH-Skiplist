@@ -11,6 +11,8 @@
 #include <cstddef>
 #include <string>
 #include <vector>
+#include <limits.h>
+
 using namespace std;
 using namespace kuku;
 
@@ -84,7 +86,7 @@ SkipList::SkipList(uint8_t max_level)
 	leaf_head = SkipList::make_leafNode(-1); // head points NULL leaf node and its min value is -1
 	index_head = SkipList::make_indexNode(max_level,-1,leaf_head); // head points NULL leaf node and its min value is -1
 	leaf_tail = SkipList::make_leafNode(-1); // head points NULL leaf node and its min value is -1
-	index_tail = SkipList::make_indexNode(max_level,-1,leaf_tail); // head points NULL leaf node and its min value is -1
+	index_tail = SkipList::make_indexNode(max_level,INT_MAX,leaf_tail); // head points NULL leaf node and its min value is -1
   for (int i = 0; i < max_level; i++) {   
 		index_head->forward[i] = index_tail; 
 	}  
@@ -178,7 +180,8 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 			_level = lvl;
 		}
     else{}
-
+/*
+  // if added, leaf node connection needed
   if(_head && update[0]->forward[0]->min == -1)
   {
     uint8_t lvl =randomLevel();
@@ -190,16 +193,14 @@ void SkipList::insert(uint64_t key, const std::string& value) {
       update[i]->forward[i] = x;
     }
   }
-
-	else if (!insertLeaf(update[0]->forward[0]->leaf,key,value)) 
+*/
+  if (_head || !insertLeaf(update[0]->forward[0]->leaf,key,value)) 
   { // if insert is fail, need to split leaf node
 		//받아야 할 인자 : hash table
     cout << "hit : " << key << endl;
 		leaf_node* before = x->leaf;
 		leaf_node* next_leaf = x->forward[0]->leaf; // level 0 일 때의 leaf
-//		int new_min = (x->min+next_leaf->min)/2; // comment : x가 아니라 before->min 아닌가?!
-	  int new_min = (x->min+key)/2;
-  	assert(0);
+		int new_min = (x->min+next_leaf->min)/2; // comment : x가 아니라 before->min 아닌가?!
     leaf_node* new_leaf = make_leafNode(new_min);
     index_node* new_index = make_indexNode(lvl, new_min, new_leaf);
 
@@ -223,7 +224,7 @@ void SkipList::insert(uint64_t key, const std::string& value) {
 					if (pair[0] >= new_leaf->min) // have to migrate 
 					{
 						new_leaf->leaf_HT->insert(pair);
-						//before->leaf_HT->table(index) = make_item(0,0);
+						before->leaf_HT->table(index) = make_item(0,0);
 					}
 						
 				}
