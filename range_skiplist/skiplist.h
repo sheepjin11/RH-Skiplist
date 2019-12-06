@@ -35,7 +35,7 @@ struct leaf_node
 class SkipList {
 public:
 
-	SkipList(uint8_t max_height);
+	SkipList(int max_level);
 
 	// thread-unsafe
 	void insert(uint64_t key, const std::string& value);
@@ -52,6 +52,7 @@ public:
 	// for debug
 	void traverse();
 
+  void makeNode(int node_num);
   uint64_t findNode(uint64_t key);
 	index_node* make_indexNode(int lvl, int min_val, leaf_node *leafnode);
 	leaf_node* make_leafNode(int min);
@@ -60,7 +61,7 @@ public:
 //concurrent operation will be implemented later
 
 private:
-	const uint8_t _max_level;
+	int _max_level;
 
 	// current level, not used in concurrent version
 	uint8_t _level;
