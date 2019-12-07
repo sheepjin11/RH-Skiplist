@@ -12,9 +12,6 @@
 #include <vector>
 #include <limits.h>
 
-using namespace std;
-using namespace kuku;
-
 #define MAX_INT 2147483640
 
 typedef struct leaf_node leaf_node;
@@ -33,7 +30,7 @@ leaf_node::leaf_node(int min_val, TOID(KukuTable) HT)
 index_node* SkipList::make_indexNode(int lvl, int min_val, TOID(leaf_node) leafnode)
 { 
   index_node* new_node =  new index_node(lvl, min_val, leafnode);
-  new_node->forward = *(new vector<index_node*>(lvl+1));
+  new_node->forward = *(new std::vector<index_node*>(lvl+1));
   for(int i=0;i<lvl+1;i++)
     new_node->forward[i] = NULL;
 	return new_node; 
@@ -81,7 +78,7 @@ bool SkipList::insertLeaf(TOID(leaf_node) leaf, int key, const std::string& valu
   {
 		return false;
   }
-	D_RW(D_RW(leaf)->BF)->insert(to_string(key));
+	D_RW(D_RW(leaf)->BF)->insert(std::to_string(key));
 	return true; // insert success.
 
 }
@@ -99,7 +96,7 @@ bool SkipList::deleteLeaf(TOID(leaf_node) leaf, int key)
 SkipList::SkipList(int max_level)
 	:_max_level(max_level),
 	 _level(1) {
-	char* path = "/mnt/pmem/skiplist";
+	char* path = "skiplist_file";
 	pop = pmemobj_create(path, POBJ_LAYOUT_NAME(skiplist), PMEMOBJ_MIN_POOL, 0666);
 	if(pop==NULL)
 	{
@@ -185,10 +182,10 @@ void SkipList::insert(int key, const std::string& value) {
       }
       update[i] = x;
 	}  
-  if (_head || !insertLeaf(update[0]->forward[0]->leaf,key,value)) 
+  if (_head || !insertLeaf(update[0]->leaf,key,value)) 
   {   
-    index_node* x = update[0]->forward[0];
-		int new_min = (x->min+x->forward[0]->min)/2; // comment : x가 아니라 before->min 아닌가?!
+    index_node* x = update[0];
+	int new_min = (x->min+x->forward[0]->min)/2; // comment : x가 아니라 before->min 아닌가?!
     TOID(leaf_node) new_leaf;
     new_leaf = make_leafNode(new_min);
     index_node* new_index = make_indexNode(lvl, new_min, new_leaf);
@@ -239,7 +236,7 @@ bool SkipList::erase(int key) {
 	}
 	if(deleteLeaf(x->leaf, key)==false)
 	{
-		cout << "this key is not existing" << endl;
+		std::cout << "this key is not existing" << std::endl;
 	}
 	
 	return true;
@@ -290,13 +287,13 @@ void SkipList::traverse()
   int num =0;
   while(1)
   {
-    cout << num << "th node min value is " << iter_node->min << endl;
+    std::cout << num << "th node min value is " << iter_node->min << std::endl;
     num++;
     iter_node = iter_node->forward[0];
     if(iter_node==this->index_tail)
       break; 
   }
-  cout << "number of node is " << num << endl;
+  std::cout << "number of node is " << num << std::endl;
 }
 
 int main()
@@ -314,5 +311,6 @@ int main()
     _skiplist->findNode(i);
   }
 */
-  cout << "inserted " << endl;
+  std::cout << "inserted " << std::endl;
+//	pmemobj_close(_skiplist->pop);
 }

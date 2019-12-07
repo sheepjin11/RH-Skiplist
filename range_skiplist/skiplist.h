@@ -9,32 +9,32 @@
 #include "kuku/kuku.h"
 #include "bloom_filter.hpp"
 #include <libpmemobj.h>
-
+#include <libpmemobj++/make_persistent.hpp>
+#include <libpmemobj++/p.hpp>
+#include <libpmemobj++/persistent_ptr.hpp>
+#include <libpmemobj++/pool.hpp>
+#include <libpmemobj++/transaction.hpp>
 #define DEBUG 1
-
-
-using namespace kuku;
-using namespace std;
 
 typedef struct leaf_node leaf_node;
 typedef class KukuTable KukuTable;
 typedef class bloom_filter bloom_filter;
 
 POBJ_LAYOUT_BEGIN(skiplist);
-POBJ_LAYOUT_TOID(skiplist, leaf_node);
+POBJ_LAYOUT_ROOT(skiplist, leaf_node);
 POBJ_LAYOUT_TOID(skiplist, KukuTable);
 POBJ_LAYOUT_TOID(skiplist, bloom_filter);
 POBJ_LAYOUT_END(skiplist);
 
 struct index_node
 {
-  index_node(int lvl, int min_val, TOID(struct leaf_node) leaf);
+  index_node(int lvl, int min_val, TOID(leaf_node) leaf);
   ~index_node();
   int min;
 //  struct leaf_node *leaf;
   TOID(leaf_node) leaf;
   int level;
-  vector<index_node*> forward; 
+  std::vector<index_node*> forward; 
 };
 
 struct leaf_node
@@ -44,7 +44,7 @@ struct leaf_node
 	int min;
 	TOID(leaf_node) leaf_forward;
 	TOID(bloom_filter) BF;
-  	TOID(KukuTable) leaf_HT;	
+	TOID(KukuTable) leaf_HT;	
 };
 
 class SkipList {
