@@ -71,7 +71,7 @@ bool SkipList::insertLeaf(TOID(leaf_node) leaf, int key, const std::string& valu
 {
 	//int val_addr = 0; // need to modify
 	uint64_t val_addr = 2; // need to modify
-	if (D_RW(D_RW(leaf)->leaf_HT)->insert(make_item(key,val_addr))) // if insert fails, return false. need to split.
+	if (!D_RW(D_RW(leaf)->leaf_HT)->insert(make_item(key,val_addr))) // if insert fails, return false. need to split.
   {
 		return false;
   }
@@ -318,7 +318,7 @@ int main()
   {
     _skiplist->findNode(i);
   }
-
+	_skiplist->traverse();
 	std::cout << "inserted " << std::endl;
 	pmemobj_close(_skiplist->pop);
 }
