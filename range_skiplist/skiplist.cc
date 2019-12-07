@@ -125,12 +125,15 @@ int SkipList::findNode(int key) { // return value address
 			leaf_node* curr_leaf = curr->leaf;
 			if(curr_leaf->BF->contains(key))
 			{
-				
+				//std::cout << "key :" << key << ", found! " << curr_leaf->leaf_HT->query(make_item(key,0)) << std::endl;
+				//curr_leaf->leaf_HT->print_table();
+				//exit(1);
 				if(curr_leaf->leaf_HT->query(make_item(key,0)))  
 				{
 					found=true;
 					val_addr = curr_leaf->leaf_HT->get(key);
 					//*layer = i;
+					//std::cout << "key :" << key << ", found! " <<std::endl;
 				}
 			}
 		}
@@ -150,7 +153,7 @@ void SkipList::insert(int key, const std::string& value) {
 	  index_node* x = this->index_head;
       while(x->min < key && x->forward[i] != NULL)
       {
-        if(x->forward[i]->min==MAX_INT)
+        if(x->forward[i]->min==MAX_INT || x->forward[i]->min > key)
           break;
         else
           x = x->forward[i];
@@ -161,7 +164,10 @@ void SkipList::insert(int key, const std::string& value) {
   {   
     cout << "hit : " << key << endl;
     index_node* x = update[0]->forward[0];
-		int new_min = (x->min+x->forward[0]->min)/2; // comment : x가 아니라 before->min 아닌가?!
+	int new_min = (x->min+x->forward[0]->min)/2; // comment : x가 아니라 before->min 아닌가?!
+	  
+	cout << "x->min : " << x->min <<", x->forward[0]->min : " << x->forward[0]->min << endl;
+	cout << "new min : " << new_min << endl;
     leaf_node* new_leaf = make_leafNode(new_min);
     index_node* new_index = make_indexNode(lvl, new_min, new_leaf);
     for(int i=0;i<=lvl;i++)
@@ -183,10 +189,16 @@ void SkipList::insert(int key, const std::string& value) {
 				item_type pair = before->leaf_HT->table(index);
 				if (pair[0] || pair[1]) // if key exists
 				{
+					
 					if (pair[0] >= new_leaf->min) // have to migrate 
 					{
 						new_leaf->leaf_HT->insert(pair);
 						before->leaf_HT->Delete(pair[0]);
+						std::cout << "after migrating pair of " << pair[0] << std::endl;
+						before->leaf_HT->print_table();
+						new_leaf->leaf_HT->print_table();
+						exit(1);
+						
 					}
 						
 				}
@@ -284,10 +296,10 @@ int main()
   {
     _skiplist->insert(i,"a");
   }
-/*  for(int i=1;i<200;i++)
+  for(int i=1;i<200;i++)
   {
-    _skiplist->findNode(i);
+	std::cout << "find Node " << i << " : " << _skiplist->findNode(i) << std::endl;
   }
-*/
+
   cout << "inserted " << endl;
 }
