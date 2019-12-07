@@ -75,7 +75,7 @@ bool SkipList::insertLeaf(TOID(leaf_node) leaf, int key, const std::string& valu
   {
 		return false;
   }
-	D_RW(D_RW(leaf)->BF)->insert(std::to_string(key));
+	//D_RW(D_RW(leaf)->BF)->insert(std::to_string(key));
 	return true; // insert success.
 
 }
@@ -154,7 +154,7 @@ int SkipList::findNode(int key) { // return value address
 			//search in leaf node
       			TOID(leaf_node) curr_leaf;
 			curr_leaf = curr->leaf;
-			if(D_RW(D_RW(curr_leaf)->BF)->contains(key))
+//			if(D_RW(D_RW(curr_leaf)->BF)->contains(key))
 			{
 				
 				if(D_RW(D_RW(curr_leaf)->leaf_HT)->query(make_item(key,0)))  
@@ -316,6 +316,7 @@ int main()
   }
   for(int i=1;i<200;i++)
   {
+	std::cout << "findnode: " << i << std::endl;
     _skiplist->findNode(i);
   }
 	_skiplist->traverse();
