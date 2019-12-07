@@ -12,6 +12,8 @@
 #include <vector>
 #include <limits.h>
 #include <libpmemobj.h>
+#include <unistd.h>
+
 #define MAX_INT 2147483640
 
 index_node::index_node(int lvl, int min_val, TOID(leaf_node) leafnode)
@@ -36,35 +38,31 @@ index_node* SkipList::make_indexNode(int lvl, int min_val, TOID(leaf_node) leafn
 
 TOID(leaf_node) SkipList::make_leafNode(int min_val)
 {
-	//kuku hash default
 	int log_table_size = 8;
 	table_size_type stash_size = 0;
-	std::size_t loc_func_count = 4;
+	size_t loc_func_count = 4;
 	item_type loc_func_seed = make_random_item();
-	std::uint64_t max_probe = 100;
+	uint64_t max_probe = 100;
 	item_type empty_item = make_item(0, 0);
-	//KukuTable* newHT = new KukuTable(log_table_size,stash_size, loc_func_count, loc_func_seed,	max_probe, empty_item);
-  //pmem
+	
 	TOID(KukuTable) newHT;
+	POBJ_ALLOC(this->pop, &newHT, KukuTable, sizeof(KukuTable), NULL, NULL);
 
-  D_RW(newHT)->log_table_size_ = log_table_size;
-  D_RW(newHT)->stash_size_ = stash_size;
-//  D_RW(newHT)->log_func_count = log_func_count;
-  D_RW(newHT)->loc_func_seed_ = loc_func_seed;
-  D_RW(newHT)->max_probe_ = max_probe;
-  D_RW(newHT)->empty_item_ = empty_item;
-  D_RW(newHT)->generate_loc_funcs(loc_func_count, loc_func_seed);
+	D_RW(newHT)->log_table_size_ = log_table_size;
+	D_RW(newHT)->stash_size_ = stash_size;
+	D_RW(newHT)->loc_func_seed_ = loc_func_seed;
+	D_RW(newHT)->max_probe_ = max_probe;
+	D_RW(newHT)->empty_item_ = empty_item;
+	D_RW(newHT)->generate_loc_funcs(loc_func_count, loc_func_seed);
+	
+	TOID(bloom_filter) newBF;
+	POBJ_ALLOC(this->pop, &newBF, bloom_filter, sizeof(bloom_filter), NULL, NULL);
 
-//  D_RW(newHT)->setParameters(log_table_size, stash_size, loc_func_seed, max_probe, empty_item);
-  POBJ_ALLOC(this->pop, &newHT, KukuTable, sizeof(KukuTable), NULL, NULL);
-  TOID(bloom_filter) newBF;
-  POBJ_ALLOC(this->pop, &newBF, bloom_filter, sizeof(bloom_filter), NULL, NULL);
-
-  TOID(leaf_node) leafnode;
-  POBJ_ALLOC(this->pop, &leafnode, leaf_node, sizeof(leaf_node), NULL, NULL);
-  D_RW(leafnode)->min = min_val;
-  D_RW(leafnode)->leaf_HT = newHT;
-  D_RW(leafnode)->BF = newBF;
+	TOID(leaf_node) leafnode;
+	POBJ_ALLOC(this->pop, &leafnode, leaf_node, sizeof(leaf_node), NULL, NULL);
+	D_RW(leafnode)->min = min_val;
+	D_RW(leafnode)->leaf_HT = newHT;
+	D_RW(leafnode)->BF = newBF;
 
 	return leafnode;
 }
@@ -95,13 +93,22 @@ bool SkipList::deleteLeaf(TOID(leaf_node) leaf, int key)
 SkipList::SkipList(int max_level)
 	:_max_level(max_level),
 	 _level(1) {
-	char* path = "skiplist_file";
-	this->pop = pmemobj_create(path, POBJ_LAYOUT_NAME(skiplist), PMEMOBJ_MIN_POOL, 0666);
-	if(this->pop==NULL)
-	{
-		perror("failed to created pool!\n");
-		exit(0);	
+	char* path = "/mnt/pmem/skiplist_file";
+	if (access( path, F_OK) == -1) {
+		if ((this->pop = pmemobj_create(path, POBJ_LAYOUT_NAME(skiplist),
+			1024*1024*1024, 0666)) == NULL) {
+			perror("failed to create pool\n");
+			exit(0);
+		}
+	} else {
+		if ((this->pop = pmemobj_open(path,
+				POBJ_LAYOUT_NAME(skiplist))) == NULL) {
+			perror("failed to open pool\n");
+			exit(0);
+		}
 	}
+
+
 	// key,value for headnode is meanless
 	leaf_head = SkipList::make_leafNode(-1); // head points NULL leaf node and its min value is -1
 	index_head = SkipList::make_indexNode(max_level,-1,leaf_head); // head points NULL leaf node and its min value is -1
@@ -250,7 +257,7 @@ void SkipList::makeNode(int node_num)
     new_leaf = make_leafNode(new_min);
     index_node* new_index = make_indexNode(lvl, new_min, new_leaf);
     index_node* update[this->_max_level];
-
+	printf("make node1\n");
     for(int i=lvl;i>-1;i--)
     {
       index_node* index_iter = this->index_head;
@@ -270,6 +277,7 @@ void SkipList::makeNode(int node_num)
         update[i] = index_iter;
       } 
     }
+	printf("make node2\n");
     for(int i=0;i<lvl+1;i++)
     {
       new_index->forward[i] = update[i]->forward[i];
@@ -277,7 +285,7 @@ void SkipList::makeNode(int node_num)
     }
     D_RW(new_leaf)->leaf_forward = D_RW(update[0]->leaf)->leaf_forward;
     D_RW(update[0]->leaf)->leaf_forward = new_leaf;
-    
+    printf("make node3\n");
   }
 }
 void SkipList::traverse()
@@ -297,19 +305,20 @@ void SkipList::traverse()
 
 int main()
 {
-  SkipList* _skiplist = new SkipList(8);
+	SkipList* _skiplist = new SkipList(8);
   _skiplist->makeNode(10);
 
   _skiplist->traverse(); 
  for(int i=1;i<200000;i++)
   {
+	  std::cout<<"inserted key : " << i << std::endl;
     _skiplist->insert(i,"a");
   }
-/*  for(int i=1;i<200;i++)
+  for(int i=1;i<200;i++)
   {
     _skiplist->findNode(i);
   }
-*/
-  std::cout << "inserted " << std::endl;
-//	pmemobj_close(_skiplist->this->pop);
+
+	std::cout << "inserted " << std::endl;
+	pmemobj_close(_skiplist->pop);
 }

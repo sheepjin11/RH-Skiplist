@@ -7,11 +7,11 @@ C_FLAGS = -O3 -DNDEBUG -fPIC
 
 C_DEFINES = 
 
-C_INCLUDES = -I/workspace/computer_archi/Kuku/src 
+C_INCLUDES = -I/home/shrimp1/computer_archi/Kuku/src 
 
 CXX_FLAGS = -O3 -DNDEBUG -fPIC   -std=gnu++14
 
 CXX_DEFINES = 
 
-CXX_INCLUDES = -I/workspace/computer_archi/Kuku/src 
+CXX_INCLUDES = -I/home/shrimp1/computer_archi/Kuku/src 
 

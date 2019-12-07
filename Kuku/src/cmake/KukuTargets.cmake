@@ -46,14 +46,14 @@ add_library(Kuku::kuku STATIC IMPORTED)
 
 set_target_properties(Kuku::kuku PROPERTIES
   INTERFACE_COMPILE_FEATURES "cxx_std_14"
-  INTERFACE_INCLUDE_DIRECTORIES "/workspace/computer_archi/Kuku/src"
+  INTERFACE_INCLUDE_DIRECTORIES "/home/shrimp1/computer_archi/Kuku/src"
 )
 
 # Import target "Kuku::kuku" for configuration "Release"
 set_property(TARGET Kuku::kuku APPEND PROPERTY IMPORTED_CONFIGURATIONS RELEASE)
 set_target_properties(Kuku::kuku PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE "C;CXX"
-  IMPORTED_LOCATION_RELEASE "/workspace/computer_archi/Kuku/lib/libkuku-1.1.a"
+  IMPORTED_LOCATION_RELEASE "/home/shrimp1/computer_archi/Kuku/lib/libkuku-1.1.a"
   )
 
 # This file does not depend on other imported targets which have

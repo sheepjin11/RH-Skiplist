@@ -5,7 +5,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_C
-  "/workspace/computer_archi/Kuku/src/kuku/blake2b.c" "/workspace/computer_archi/Kuku/src/CMakeFiles/kuku.dir/kuku/blake2b.c.o"
+  "/home/shrimp1/computer_archi/Kuku/src/kuku/blake2b.c" "/home/shrimp1/computer_archi/Kuku/src/CMakeFiles/kuku.dir/kuku/blake2b.c.o"
   )
 set(CMAKE_C_COMPILER_ID "GNU")
 
@@ -14,8 +14,8 @@ set(CMAKE_C_TARGET_INCLUDE_PATH
   "."
   )
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/workspace/computer_archi/Kuku/src/kuku/common.cpp" "/workspace/computer_archi/Kuku/src/CMakeFiles/kuku.dir/kuku/common.cpp.o"
-  "/workspace/computer_archi/Kuku/src/kuku/kuku.cpp" "/workspace/computer_archi/Kuku/src/CMakeFiles/kuku.dir/kuku/kuku.cpp.o"
+  "/home/shrimp1/computer_archi/Kuku/src/kuku/common.cpp" "/home/shrimp1/computer_archi/Kuku/src/CMakeFiles/kuku.dir/kuku/common.cpp.o"
+  "/home/shrimp1/computer_archi/Kuku/src/kuku/kuku.cpp" "/home/shrimp1/computer_archi/Kuku/src/CMakeFiles/kuku.dir/kuku/kuku.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

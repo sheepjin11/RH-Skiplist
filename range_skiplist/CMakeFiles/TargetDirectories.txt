@@ -1,3 +1,3 @@
-/workspace/computer_archi/range_skiplist/CMakeFiles/rebuild_cache.dir
-/workspace/computer_archi/range_skiplist/CMakeFiles/skiplist.dir
-/workspace/computer_archi/range_skiplist/CMakeFiles/edit_cache.dir
+/home/shrimp1/computer_archi/range_skiplist/CMakeFiles/rebuild_cache.dir
+/home/shrimp1/computer_archi/range_skiplist/CMakeFiles/skiplist.dir
+/home/shrimp1/computer_archi/range_skiplist/CMakeFiles/edit_cache.dir

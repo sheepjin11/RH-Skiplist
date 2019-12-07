@@ -15,8 +15,7 @@
 #include <cstring>
 #include <stdexcept>
 
-namespace kuku
-{
+
     class LocFunc
     {
     public:
@@ -59,4 +58,3 @@ namespace kuku
 
         item_type seed_;
     };
-}

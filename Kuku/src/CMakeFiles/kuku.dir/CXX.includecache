@@ -6,11 +6,11 @@
 
 #IncludeRegexTransform: 
 
-/workspace/computer_archi/Kuku/src/kuku/kuku.cpp
+/home/shrimp1/computer_archi/Kuku/src/kuku/kuku.cpp
 kuku/kuku.h
-/workspace/computer_archi/Kuku/src/kuku/kuku/kuku.h
+/home/shrimp1/computer_archi/Kuku/src/kuku/kuku/kuku.h
 iostream
-/workspace/computer_archi/Kuku/src/kuku/iostream
+/home/shrimp1/computer_archi/Kuku/src/kuku/iostream
 assert.h
 -
 
@@ -52,8 +52,6 @@ vector
 random
 -
 memory
--
-stdexcept
 -
 set
 -

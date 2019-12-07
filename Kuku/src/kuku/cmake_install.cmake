@@ -1,4 +1,4 @@
-# Install script for directory: /workspace/computer_archi/Kuku/src/kuku
+# Install script for directory: /home/shrimp1/computer_archi/Kuku/src/kuku
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,12 +39,12 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
   file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/include/Kuku-1.1/kuku" TYPE FILE FILES
-    "/workspace/computer_archi/Kuku/src/kuku/blake2.h"
-    "/workspace/computer_archi/Kuku/src/kuku/blake2-impl.h"
-    "/workspace/computer_archi/Kuku/src/kuku/config.h"
-    "/workspace/computer_archi/Kuku/src/kuku/kuku.h"
-    "/workspace/computer_archi/Kuku/src/kuku/common.h"
-    "/workspace/computer_archi/Kuku/src/kuku/locfunc.h"
+    "/home/shrimp1/computer_archi/Kuku/src/kuku/blake2.h"
+    "/home/shrimp1/computer_archi/Kuku/src/kuku/blake2-impl.h"
+    "/home/shrimp1/computer_archi/Kuku/src/kuku/config.h"
+    "/home/shrimp1/computer_archi/Kuku/src/kuku/kuku.h"
+    "/home/shrimp1/computer_archi/Kuku/src/kuku/common.h"
+    "/home/shrimp1/computer_archi/Kuku/src/kuku/locfunc.h"
     )
 endif()
 

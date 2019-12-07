@@ -12,11 +12,11 @@
 #define DEBUG 1
 
 typedef struct leaf_node leaf_node;
-typedef KukuTable KukuTable;
+typedef class KukuTable KukuTable;
 typedef class bloom_filter bloom_filter;
 
 POBJ_LAYOUT_BEGIN(skiplist);
-POBJ_LAYOUT_ROOT(skiplist, leaf_node);
+POBJ_LAYOUT_TOID(skiplist, leaf_node);
 POBJ_LAYOUT_TOID(skiplist, KukuTable);
 POBJ_LAYOUT_TOID(skiplist, bloom_filter);
 POBJ_LAYOUT_END(skiplist);
@@ -70,6 +70,7 @@ public:
 	bool deleteLeaf(TOID(leaf_node) leaf, int key);
 //concurrent operation will be implemented later
 
+	PMEMobjpool *pop;
 private:
 	int _max_level;
 
@@ -82,7 +83,6 @@ private:
 	index_node* index_tail;
 	TOID(leaf_node) leaf_tail;
 
-	PMEMobjpool *pop;
 };
 
 #endif // __SKIPLIST_H__
