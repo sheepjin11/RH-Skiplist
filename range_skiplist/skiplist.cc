@@ -160,10 +160,10 @@ void SkipList::insert(int key, const std::string& value) {
       }
       update[i] = x;
 	}  
-  if (_head || !insertLeaf(update[0]->forward[0]->leaf,key,value)) 
+  if (_head || !insertLeaf(update[0]->leaf,key,value)) 
   {   
     cout << "hit : " << key << endl;
-    index_node* x = update[0]->forward[0];
+    index_node* x = update[0];
 	int new_min = (x->min+x->forward[0]->min)/2; // comment : x가 아니라 before->min 아닌가?!
 	  
 	cout << "x->min : " << x->min <<", x->forward[0]->min : " << x->forward[0]->min << endl;
