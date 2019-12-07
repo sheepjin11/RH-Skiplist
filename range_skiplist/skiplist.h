@@ -9,15 +9,10 @@
 #include "kuku/kuku.h"
 #include "bloom_filter.hpp"
 #include <libpmemobj.h>
-#include <libpmemobj++/make_persistent.hpp>
-#include <libpmemobj++/p.hpp>
-#include <libpmemobj++/persistent_ptr.hpp>
-#include <libpmemobj++/pool.hpp>
-#include <libpmemobj++/transaction.hpp>
 #define DEBUG 1
 
 typedef struct leaf_node leaf_node;
-typedef class KukuTable KukuTable;
+typedef KukuTable KukuTable;
 typedef class bloom_filter bloom_filter;
 
 POBJ_LAYOUT_BEGIN(skiplist);

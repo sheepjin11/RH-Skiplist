@@ -11,10 +11,8 @@
 #include <string>
 #include <vector>
 #include <limits.h>
-
+#include <libpmemobj.h>
 #define MAX_INT 2147483640
-
-typedef struct leaf_node leaf_node;
 
 index_node::index_node(int lvl, int min_val, TOID(leaf_node) leafnode)
 	:min(min_val),
@@ -40,29 +38,30 @@ TOID(leaf_node) SkipList::make_leafNode(int min_val)
 {
 	//kuku hash default
 	int log_table_size = 8;
-	int stash_size = 0;
-	int loc_func_count = 4;
+	table_size_type stash_size = 0;
+	std::size_t loc_func_count = 4;
 	item_type loc_func_seed = make_random_item();
-	int max_probe = 100;
+	std::uint64_t max_probe = 100;
 	item_type empty_item = make_item(0, 0);
 	//KukuTable* newHT = new KukuTable(log_table_size,stash_size, loc_func_count, loc_func_seed,	max_probe, empty_item);
   //pmem
-  TOID(KukuTable) newHT;
-  /*
-  D_RW(newHT)->log_table_size = log_table_size;
-  D_RW(newHT)->stash_size = stash_size;
-  D_RW(newHT)->log_func_count = log_func_count;
-  D_RW(newHT)->log_func_seed = log_func_seed;
-  D_RW(newHT)->max_probe = max_probe;
-  D_RW(newHT)->emtpy_item = empty_item;
-  */
-  D_RW(newHT)->setParameters(log_table_size, stash_size, loc_func_seed, max_probe, empty_item);
-  POBJ_ALLOC(pop, &newHT, KukuTable, sizeof(KukuTable), NULL, NULL);
+	TOID(KukuTable) newHT;
+
+  D_RW(newHT)->log_table_size_ = log_table_size;
+  D_RW(newHT)->stash_size_ = stash_size;
+//  D_RW(newHT)->log_func_count = log_func_count;
+  D_RW(newHT)->loc_func_seed_ = loc_func_seed;
+  D_RW(newHT)->max_probe_ = max_probe;
+  D_RW(newHT)->empty_item_ = empty_item;
+  D_RW(newHT)->generate_loc_funcs(loc_func_count, loc_func_seed);
+
+//  D_RW(newHT)->setParameters(log_table_size, stash_size, loc_func_seed, max_probe, empty_item);
+  POBJ_ALLOC(this->pop, &newHT, KukuTable, sizeof(KukuTable), NULL, NULL);
   TOID(bloom_filter) newBF;
-  POBJ_ALLOC(pop, &newBF, bloom_filter, sizeof(bloom_filter), NULL, NULL);
+  POBJ_ALLOC(this->pop, &newBF, bloom_filter, sizeof(bloom_filter), NULL, NULL);
 
   TOID(leaf_node) leafnode;
-  POBJ_ALLOC(pop, &leafnode, leaf_node, sizeof(leaf_node), NULL, NULL);
+  POBJ_ALLOC(this->pop, &leafnode, leaf_node, sizeof(leaf_node), NULL, NULL);
   D_RW(leafnode)->min = min_val;
   D_RW(leafnode)->leaf_HT = newHT;
   D_RW(leafnode)->BF = newBF;
@@ -97,8 +96,8 @@ SkipList::SkipList(int max_level)
 	:_max_level(max_level),
 	 _level(1) {
 	char* path = "skiplist_file";
-	pop = pmemobj_create(path, POBJ_LAYOUT_NAME(skiplist), PMEMOBJ_MIN_POOL, 0666);
-	if(pop==NULL)
+	this->pop = pmemobj_create(path, POBJ_LAYOUT_NAME(skiplist), PMEMOBJ_MIN_POOL, 0666);
+	if(this->pop==NULL)
 	{
 		perror("failed to created pool!\n");
 		exit(0);	
@@ -111,8 +110,8 @@ SkipList::SkipList(int max_level)
   for (int i = 0; i < max_level; i++) {   
 		index_head->forward[i] = index_tail; 
 	} 
-    	POBJ_ALLOC(pop, &leaf_head, leaf_node, sizeof(leaf_node), NULL, NULL);
-    	POBJ_ALLOC(pop, &leaf_tail, leaf_node, sizeof(leaf_node), NULL, NULL); 
+    	POBJ_ALLOC(this->pop, &leaf_head, leaf_node, sizeof(leaf_node), NULL, NULL);
+    	POBJ_ALLOC(this->pop, &leaf_tail, leaf_node, sizeof(leaf_node), NULL, NULL); 
 	D_RW(leaf_head)->leaf_forward = leaf_tail; 
 }
 //do not modify anything
@@ -217,7 +216,7 @@ void SkipList::insert(int key, const std::string& value) {
 				}
 			}
 		}
-  	POBJ_ALLOC(pop, &new_leaf, leaf_node, sizeof(leaf_node), NULL, NULL);
+  	POBJ_ALLOC(this->pop, &new_leaf, leaf_node, sizeof(leaf_node), NULL, NULL);
 	}
   else
   {
@@ -302,7 +301,7 @@ int main()
   _skiplist->makeNode(10);
 
   _skiplist->traverse(); 
- for(int i=1;i<200000000;i++)
+ for(int i=1;i<200000;i++)
   {
     _skiplist->insert(i,"a");
   }
@@ -312,5 +311,5 @@ int main()
   }
 */
   std::cout << "inserted " << std::endl;
-//	pmemobj_close(_skiplist->pop);
+//	pmemobj_close(_skiplist->this->pop);
 }
