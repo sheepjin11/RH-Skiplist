@@ -310,6 +310,26 @@ void SkipList::traverse()
   }
   std::cout << "number of node is " << num << std::endl;
 }
+void fillseq()
+{
+
+}
+
+void fillrandom()
+{
+
+}
+
+void findseq()
+{
+
+}
+
+void findrandom()
+{
+
+}
+
 
 int main()
 {
