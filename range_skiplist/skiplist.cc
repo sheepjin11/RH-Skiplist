@@ -42,8 +42,8 @@ index_node* SkipList::make_indexNode(int lvl, int min_val,leaf_node *leafnode)
 leaf_node* SkipList::make_leafNode(int min_val)
 {
 	//kuku hash default
-	int log_table_size = 8;
-	int stash_size = 0;
+	int log_table_size =14;
+	int stash_size=0;
 	int loc_func_count = 4;
 	item_type loc_func_seed = make_random_item();
 	int max_probe = 100;
@@ -209,7 +209,7 @@ void SkipList::insert(int key, const std::string& value) {
 	}  
   if (_head || !insertLeaf(update[0]->leaf,key,value)) 
   {   
-    cout << "hit : " << key << endl;
+    //cout << "hit : " << key << endl;
     index_node* x = update[0];
 	int new_min = (x->min+x->forward[0]->min)/2; 
 	
@@ -225,8 +225,8 @@ void SkipList::insert(int key, const std::string& value) {
 
 
 		int col_count = 8;
-    leaf_node* before = x->leaf; 
-		for (int row = 0; row <  before->leaf_HT->table_size() / col_count; row++) 
+    leaf_node* before = x->leaf;
+    for (int row = 0; row <  before->leaf_HT->table_size() / col_count; row++) 
 		{
 			for (int col = 0; col < col_count; col++)
 			{
@@ -238,7 +238,7 @@ void SkipList::insert(int key, const std::string& value) {
 					if (pair[0] >= new_leaf->min) // have to migrate 
 					{
 						if(!new_leaf->leaf_HT->insert(pair)){
-							cout << "insert fail during split, key : " << pair[0] << endl; 
+						//cout << "insert fail during split, key : " << pair[0] << " , fill rate : " << new_leaf->leaf_HT->fill_rate()<< endl; 
 							item_type re_insert =new_leaf->leaf_HT->last_insert_fail_item();
 							insert(re_insert[0], to_string(re_insert[1])); // value & value address must be separated
 						}
@@ -329,7 +329,7 @@ void SkipList::traverse()
   int num =0;
   while(1)
   {
-    cout << num << "th node min value is " << iter_node->min << endl;
+//    cout << num << "th node min value is " << iter_node->min << endl;
     num++;
     iter_node = iter_node->forward[0];
     if(iter_node==this->index_tail)
@@ -342,13 +342,34 @@ int main()
 {
   SkipList* _skiplist = new SkipList(8);
   _skiplist->makeNode(10);
-
- for(int i=1;i<200;i++)
+  
+clock_t start, end;
+  srand(time(NULL));
+  int num=1000000;
+  start = clock();
+  int random = rand();
+  int key = random % MAX_INT +1;
+  srand(time(NULL));
+ for(int i=1;i<num;i++)
   {
+    //random = rand();
+    //key = random % MAX_INT +1;
     _skiplist->insert(i,"a");
   }
-  cout << "inserted " << endl;
-
+  end = clock();
+  cout << "insert time : " << (double)(end-start)/CLOCKS_PER_SEC << endl;
+  start = clock();
+  for(int i=1;i<num;i++)
+  {
+   // random = rand();
+    //key = random % MAX_INT +1;
+    _skiplist->findNode(i);
+  }
+  end = clock();
+  cout << "search time : " << (double)(end-start)/CLOCKS_PER_SEC << endl;
+  
+  _skiplist->traverse();
+/*
   vector<int> query_ ;
   for(int i=1;i<200;i++)
   {
@@ -359,5 +380,6 @@ int main()
   for(int i=0;i<result.size();i++)
   {
           cout << result[i].first << "result is " << result[i].second << endl;
-  }
+  }*/
+  return 0;
 }
