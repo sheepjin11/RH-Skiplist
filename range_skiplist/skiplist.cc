@@ -2,6 +2,8 @@
 #include <iostream>
 #include <cstdlib>
 #include <list>
+#include <sstream>
+
 #include <assert.h>
 #include <random>
 #include <chrono>
@@ -26,6 +28,10 @@ leaf_node::leaf_node(int min_val, TOID(KukuTable) HT)
 	:min(min_val),
 	leaf_HT(HT){	
 	}
+value_node::value_node()
+	:real_value("")
+{
+}
 
 index_node* SkipList::make_indexNode(int lvl, int min_val, TOID(leaf_node) leafnode)
 { 
@@ -65,7 +71,7 @@ TOID(leaf_node) SkipList::make_leafNode(int min_val)
 	return leafnode;
 }
 
-bool SkipList::insertLeaf(TOID(leaf_node) leaf, int key, const std::string& value)
+bool SkipList::insertLeaf(TOID(leaf_node) leaf, int key, std::string value)
 {
 	uint64_t val_addr = 2; // need to modify
 	//if (!D_RW(D_RW(leaf)->leaf_HT)->insert(make_item((uint64_t)key,val_addr))) // if insert fails, return false. need to split.
@@ -152,16 +158,12 @@ int SkipList::findNode(int key) { // return value address
 			//search in leaf node
       			TOID(leaf_node) curr_leaf;
 			curr_leaf = curr->leaf;
-//			if(D_RW(D_RW(curr_leaf)->BF)->contains(key))
-			{
 				
 				if(D_RW(D_RW(curr_leaf)->leaf_HT)->query(make_item(key,0)))  
 				{
 					found=true;
 					val_addr = D_RW(D_RW(curr_leaf)->leaf_HT)->get(key);
-					//*layer = i;
 				}
-			}
 		}
 	if (!found)
 		return 0;
@@ -170,7 +172,17 @@ int SkipList::findNode(int key) { // return value address
 
 //leaf Get implementation
 
-void SkipList::insert(int key, const std::string& value) {
+void SkipList::insert(int key, std::string value) {
+/*
+  TOID(value_node) persist_value;
+  POBJ_ALLOC(this->pop, &persist_value, value_node, sizeof(value_node), NULL, NULL);
+
+  D_RW(persist_value)->real_value = (char*)value.c_str();
+
+  char** tmp_addr = &(D_RW(persist_value)->real_value);
+  std::cout << "value addr is " << tmp_addr << std::endl;
+*/
+
 
   bool _head = false;
   int lvl = randomLevel();  
@@ -235,7 +247,64 @@ void SkipList::insert(int key, const std::string& value) {
 	}
   else
   {
+  }  
+
+}
+
+std::vector< std::pair<int, uint64_t> > SkipList::Query(std::vector<int> key_vector) {
+  std::vector<int> min_vector;
+  TOID(leaf_node) iter_node = this->leaf_head;
+	  while(1)
+  {
+    iter_node = D_RW(iter_node)->leaf_forward;
+    if(D_RW(iter_node)->min==MAX_INT)
+      break;
+    else  
+    {
+      min_vector.push_back(D_RW(iter_node)->min);
+    }   
   }
+  std::vector< std::vector<int> > result(key_vector.size());
+  for(int i=0;i<key_vector.size();i++)
+  {
+    result[i].resize(min_vector.size());
+  }
+  for(int i=0;i<key_vector.size();i++)
+  {
+    for(int j=0;j<min_vector.size();j++)
+    {
+        if(key_vector[i] <= min_vector[j])
+        {
+          result[j].push_back(key_vector[i]);
+          break;
+        }
+    }
+  }	  std::vector< std::pair<int,uint64_t> > val_addr_vector(key_vector.size());
+
+  for(int i=0;i<min_vector.size();i++)
+  {
+    TOID(leaf_node) curr_leaf = this->leaf_head;
+    for(int z=0;z<i;z++)
+    {
+      curr_leaf = D_RW(curr_leaf)->leaf_forward;
+    }
+    for(int j=0;j<result[i].size();j++)
+    {
+      int key = result[i][j];
+      if(key!=0)
+      {
+				if(D_RW(D_RW(curr_leaf)->leaf_HT)->query(make_item(key,0)))  
+				{
+					std::cout << "query in 1: " << D_RW(curr_leaf)->min << std::endl;
+					uint64_t val_addr = D_RW(D_RW(curr_leaf)->leaf_HT)->get(key);
+					std::pair<int, uint64_t> return_value = std::make_pair(key, val_addr);
+					val_addr_vector.push_back(return_value);
+				}
+      }
+    }
+  }
+	return val_addr_vector;
+
 }
 //heejin must re-implement leaf node
 bool SkipList::erase(int key) {
@@ -335,16 +404,29 @@ int main()
   _skiplist->makeNode(10);
 
   _skiplist->traverse(); 
- for(int i=1;i<1000000;i++)
+ for(int i=1;i<200;i++)
   {
 	std::cout << "insert: " << i << std::endl;
-    _skiplist->insert(i,"a");
+    _skiplist->insert(i, "a");
   }
   for(int i=1;i<200;i++)
   {
-	std::cout << "find:: " << i << std::endl;
-    _skiplist->findNode(i);
+   
+	std::cout << i << "find:: " << _skiplist->findNode(i)<< std::endl; 
   }
+  /*
+  std::vector<int> query_ ;
+  for(int i=1;i<200;i++)
+  {
+    query_.push_back(i);
+  }
+  std::vector< std::pair<int,uint64_t> > result = _skiplist->Query(query_);
+  std::cout << "query finished" <<  std::endl;
+  for(int i=0;i<result.size();i++)
+  {
+	  std::cout << result[i].first << "result is " << result[i].second << std::endl;
+  }
+*/
 	_skiplist->traverse();
 	pmemobj_close(_skiplist->pop);
 }
