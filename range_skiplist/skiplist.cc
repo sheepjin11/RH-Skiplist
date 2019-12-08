@@ -97,7 +97,7 @@ SkipList::SkipList(int max_level)
 	char* path = "/mnt/pmem/skiplist_file";
 	if (access( path, F_OK) == -1) {
 		if ((this->pop = pmemobj_create(path, POBJ_LAYOUT_NAME(skiplist),
-			1024*1024*1024, 0666)) == NULL) {
+			5*1024*1024*1024, 0666)) == NULL) {
 			perror("failed to create pool\n");
 			exit(0);
 		}
@@ -195,9 +195,6 @@ void SkipList::insert(int key, const std::string& value) {
  
 	std::cout << "split_new key: " << D_RW(x->forward[0]->leaf)->min << std::endl;
 	std::cout << "split_before key: " << D_RW(x->leaf)->min << std::endl;
-//	if(D_RW(x->forward[0]->leaf)->min == D_RW(x->leaf)->min)
-//		new_min += key;
-
 	TOID(leaf_node) new_leaf;
     new_leaf = make_leafNode(new_min);
 	D_RW(new_leaf)->cnt++; //may be modified
