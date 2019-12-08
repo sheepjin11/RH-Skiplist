@@ -6,6 +6,36 @@
 
 #IncludeRegexTransform: 
 
+/home/shrimp1/computer_archi/Kuku/src/kuku/common.cpp
+common.h
+/home/shrimp1/computer_archi/Kuku/src/kuku/common.h
+Windows.h
+-
+bcrypt.h
+-
+
+/home/shrimp1/computer_archi/Kuku/src/kuku/common.h
+kuku/config.h
+/home/shrimp1/computer_archi/Kuku/src/kuku/kuku/config.h
+assert.h
+-
+cstddef
+-
+cstdint
+-
+utility
+-
+cstring
+-
+stdexcept
+-
+random
+-
+array
+-
+algorithm
+-
+
 /home/shrimp1/computer_archi/Kuku/src/kuku/kuku.cpp
 kuku/kuku.h
 /home/shrimp1/computer_archi/Kuku/src/kuku/kuku/kuku.h
@@ -23,6 +53,8 @@ stdint.h
 kuku/common.h
 kuku/config.h
 kuku/kuku/config.h
+assert.h
+-
 cstddef
 -
 cstdint
@@ -43,6 +75,8 @@ algorithm
 kuku/config.h
 
 kuku/kuku.h
+assert.h
+-
 kuku/common.h
 kuku/kuku/common.h
 kuku/locfunc.h

@@ -101,9 +101,11 @@ std::set<location_type> KukuTable::all_locations(item_type item) const
 
     bool KukuTable::insert(item_type item, uint64_t level)
     {
+		assert(0);
 		item_type index_item = make_item(item[0], 0);
         if (is_empty_item(item))
         {
+			assert(0);
             //throw invalid_argument("cannot insert the null item");
         }
         if (level >= max_probe_)

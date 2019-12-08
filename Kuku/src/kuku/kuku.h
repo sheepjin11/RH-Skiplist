@@ -2,7 +2,7 @@
 // Licensed under the MIT license.
 
 #pragma once
-
+#include <assert.h>
 #include "kuku/common.h"
 #include "kuku/locfunc.h"
 #include <vector>
@@ -204,8 +204,9 @@
 
         inline double fill_rate() const noexcept
         {
-            return static_cast<double>(inserted_items_) /
-                static_cast<double>(table_size() + stash_size_);
+        //    return static_cast<double>(inserted_items_) /
+        //        static_cast<double>(table_size() + stash_size_);
+            return static_cast<double>(inserted_items_) ;
         }
 
         KukuTable(const KukuTable &copy) = delete;

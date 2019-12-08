@@ -8,6 +8,7 @@
 #include "kuku/config.h"
 #endif
 
+#include <assert.h>
 #include <cstddef>
 #include <cstdint>
 #include <utility>
