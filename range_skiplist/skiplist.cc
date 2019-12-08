@@ -56,13 +56,11 @@ leaf_node* SkipList::make_leafNode(int min_val)
 }
 bool SkipList::insertLeaf(leaf_node* leaf, int key, const std::string& value)
 {
-	//int val_addr = 0; // need to modify
 	uint64_t val_addr = 2; // need to modify
 	if (!leaf->leaf_HT->insert(make_item(key,val_addr))) // if insert fails, return false. need to split.
   {
 		return false;
   }
-	leaf->BF->insert(to_string(key));
 
 	return true; // insert success.
 
@@ -85,7 +83,7 @@ SkipList::SkipList(int max_level)
 	// key,value for headnode is meanless
 	leaf_head = SkipList::make_leafNode(-1); // head points NULL leaf node and its min value is -1
 	index_head = SkipList::make_indexNode(max_level,-1,leaf_head); // head points NULL leaf node and its min value is -1
-	leaf_tail = SkipList::make_leafNode(-1); // head points NULL leaf node and its min value is -1
+	leaf_tail = SkipList::make_leafNode(MAX_INT); // head points NULL leaf node and its min value is -1
 	index_tail = SkipList::make_indexNode(max_level,MAX_INT,leaf_tail); // head points NULL leaf node and its min value is -1
   for (int i = 0; i < max_level; i++) {   
 		index_head->forward[i] = index_tail; 
@@ -124,22 +122,72 @@ int SkipList::findNode(int key) { // return value address
 		if (!found && curr->min <= key) {
 			//search in leaf node
 			leaf_node* curr_leaf = curr->leaf;
-			if(curr_leaf->BF->contains(key))
-			{
-
 				if(curr_leaf->leaf_HT->query(make_item(key,0)))  
 				{
 					found=true;
 					val_addr = curr_leaf->leaf_HT->get(key);
-					//*layer = i;
 
 				}
 			}
-		}
 	if (!found)
 		return 0;
 	return val_addr;
 }
+vector< pair<int,uint64_t> > SkipList::Query(std::vector<int> key_vector) { 
+  std::vector<int> min_vector;
+  leaf_node* iter_node = this->leaf_head;
+  while(1)
+  {
+    iter_node = iter_node->leaf_forward;
+    if(iter_node->min==MAX_INT)
+      break;
+    else  
+    {
+      min_vector.push_back(iter_node->min);
+    }   
+  } 
+  std::vector< vector<int> > result(key_vector.size());
+  for(int i=0;i<key_vector.size();i++)
+  {
+    result[i].resize(min_vector.size());
+  }
+  for(int i=0;i<key_vector.size();i++)
+  {
+    for(int j=0;j<min_vector.size();j++)
+    {
+        if(key_vector[i] <= min_vector[j])
+        {
+          result[j].push_back(key_vector[i]);
+          break;
+        }
+    }
+  }
+  std::vector< pair<int,uint64_t> > val_addr_vector(key_vector.size());
+
+  for(int i=0;i<min_vector.size();i++)
+  {
+    leaf_node* curr_leaf = this->leaf_head;
+    for(int z=0;z<i;z++)
+    {
+      curr_leaf = curr_leaf->leaf_forward;
+    }
+    for(int j=0;j<result[i].size();j++)
+    {
+      int key = result[i][j];
+      if(key!=0)
+      {
+				if(curr_leaf->leaf_HT->query(make_item(key,0)))  
+				{
+					uint64_t val_addr = curr_leaf->leaf_HT->get(key);
+          pair<int, uint64_t> return_value = make_pair(key, val_addr);
+          val_addr_vector.push_back(return_value);
+				}
+      }
+    }
+  }
+	return val_addr_vector;
+}
+
 
 //leaf Get implementation
 
@@ -295,15 +343,21 @@ int main()
   SkipList* _skiplist = new SkipList(8);
   _skiplist->makeNode(10);
 
-  _skiplist->traverse(); 
- for(int i=1;i<2000;i++)
+ for(int i=1;i<200;i++)
   {
     _skiplist->insert(i,"a");
   }
+  cout << "inserted " << endl;
+
+  vector<int> query_ ;
   for(int i=1;i<200;i++)
   {
-	std::cout << "find Node " << i << " : " << _skiplist->findNode(i) << std::endl;
+    query_.push_back(i);
   }
-
-  cout << "inserted " << endl;
+  vector< pair<int,uint64_t> > result = _skiplist->Query(query_);
+  cout << "query finished" <<  endl;
+  for(int i=0;i<result.size();i++)
+  {
+          cout << result[i].first << "result is " << result[i].second << endl;
+  }
 }

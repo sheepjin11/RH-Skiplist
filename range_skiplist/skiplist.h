@@ -52,6 +52,7 @@ public:
 	// for debug
 	void traverse();
 
+  std::vector< pair<int, uint64_t> > Query(std::vector<int> key_vector);
   void makeNode(int node_num);
   int findNode(int key);
 	index_node* make_indexNode(int lvl, int min_val, leaf_node *leafnode);
