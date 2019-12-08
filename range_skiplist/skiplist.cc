@@ -222,13 +222,7 @@ void SkipList::insert(int key, const std::string& value) {
 					if (pair[0] >= D_RW(new_leaf)->min) // have to migrate 
 					{
 						std::cout << key << key << " row: " << row << std::endl;
-						//if (!D_RW(D_RW(new_leaf)->leaf_HT)->insert(pair))
-						if (D_RW(new_leaf)->cnt > THRESHOLD)
-						{
-							cout << "insert fail during split, key : " << pair[0] << endl; 
-							item_type re_insert =D_RW(D_RW(new_leaf)->leaf_HT)->last_insert_fail_item();
-							insert(re_insert[0], to_string(re_insert[1])); // value & value address must be separated
-						}
+						D_RW(D_RW(new_leaf)->leaf_HT)->insert(pair);
 						D_RW(D_RW(before)->leaf_HT)->Delete(pair[0]);
 						D_RW(new_leaf)->cnt++;
 						D_RW(before)->cnt--;
@@ -238,8 +232,6 @@ void SkipList::insert(int key, const std::string& value) {
 			}
 		}
 	  
-	  	item_type re_insert =D_RW(D_RW(before)->leaf_HT)->last_insert_fail_item();
-		insert(re_insert[0], to_string(re_insert[1])); // value & value address must be separated
 	}
   else
   {
@@ -343,7 +335,7 @@ int main()
   _skiplist->makeNode(10);
 
   _skiplist->traverse(); 
- for(int i=1;i<20000000;i++)
+ for(int i=1;i<1000000;i++)
   {
 	std::cout << "insert: " << i << std::endl;
     _skiplist->insert(i,"a");
