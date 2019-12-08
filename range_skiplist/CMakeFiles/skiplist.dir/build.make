@@ -57,27 +57,27 @@ include CMakeFiles/skiplist.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/skiplist.dir/flags.make
 
-CMakeFiles/skiplist.dir/skiplist.cc.o: CMakeFiles/skiplist.dir/flags.make
-CMakeFiles/skiplist.dir/skiplist.cc.o: skiplist.cc
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/computer_archi/range_skiplist/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/skiplist.dir/skiplist.cc.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/skiplist.dir/skiplist.cc.o -c /workspace/computer_archi/range_skiplist/skiplist.cc
+CMakeFiles/skiplist.dir/skiplist.cpp.o: CMakeFiles/skiplist.dir/flags.make
+CMakeFiles/skiplist.dir/skiplist.cpp.o: skiplist.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/workspace/computer_archi/range_skiplist/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/skiplist.dir/skiplist.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/skiplist.dir/skiplist.cpp.o -c /workspace/computer_archi/range_skiplist/skiplist.cpp
 
-CMakeFiles/skiplist.dir/skiplist.cc.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/skiplist.dir/skiplist.cc.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /workspace/computer_archi/range_skiplist/skiplist.cc > CMakeFiles/skiplist.dir/skiplist.cc.i
+CMakeFiles/skiplist.dir/skiplist.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/skiplist.dir/skiplist.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /workspace/computer_archi/range_skiplist/skiplist.cpp > CMakeFiles/skiplist.dir/skiplist.cpp.i
 
-CMakeFiles/skiplist.dir/skiplist.cc.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/skiplist.dir/skiplist.cc.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /workspace/computer_archi/range_skiplist/skiplist.cc -o CMakeFiles/skiplist.dir/skiplist.cc.s
+CMakeFiles/skiplist.dir/skiplist.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/skiplist.dir/skiplist.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /workspace/computer_archi/range_skiplist/skiplist.cpp -o CMakeFiles/skiplist.dir/skiplist.cpp.s
 
 # Object files for target skiplist
 skiplist_OBJECTS = \
-"CMakeFiles/skiplist.dir/skiplist.cc.o"
+"CMakeFiles/skiplist.dir/skiplist.cpp.o"
 
 # External object files for target skiplist
 skiplist_EXTERNAL_OBJECTS =
 
-skiplist: CMakeFiles/skiplist.dir/skiplist.cc.o
+skiplist: CMakeFiles/skiplist.dir/skiplist.cpp.o
 skiplist: CMakeFiles/skiplist.dir/build.make
 skiplist: /usr/local/lib/libkuku-1.1.a
 skiplist: CMakeFiles/skiplist.dir/link.txt

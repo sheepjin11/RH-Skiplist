@@ -4,7 +4,7 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/workspace/computer_archi/range_skiplist/skiplist.cc" "/workspace/computer_archi/range_skiplist/CMakeFiles/skiplist.dir/skiplist.cc.o"
+  "/workspace/computer_archi/range_skiplist/skiplist.cpp" "/workspace/computer_archi/range_skiplist/CMakeFiles/skiplist.dir/skiplist.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 

@@ -49,6 +49,8 @@ stdexcept
 -
 set
 -
+iomanip
+-
 
 /usr/local/include/Kuku-1.1/kuku/locfunc.h
 kuku/common.h
@@ -78,7 +80,7 @@ string
 vector
 -
 
-/workspace/computer_archi/range_skiplist/skiplist.cc
+/workspace/computer_archi/range_skiplist/skiplist.cpp
 iostream
 -
 cstdlib
@@ -100,6 +102,10 @@ iomanip
 cstddef
 -
 string
+-
+vector
+-
+limits.h
 -
 
 /workspace/computer_archi/range_skiplist/skiplist.h
