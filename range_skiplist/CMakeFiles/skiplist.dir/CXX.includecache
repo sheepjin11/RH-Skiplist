@@ -79,6 +79,8 @@ stdint.h
 /usr/local/include/Kuku-1.1/kuku/common.h
 kuku/config.h
 /usr/local/include/Kuku-1.1/kuku/kuku/config.h
+assert.h
+-
 cstddef
 -
 cstdint
@@ -99,6 +101,8 @@ algorithm
 /usr/local/include/Kuku-1.1/kuku/config.h
 
 /usr/local/include/Kuku-1.1/kuku/kuku.h
+assert.h
+-
 kuku/common.h
 /usr/local/include/Kuku-1.1/kuku/kuku/common.h
 kuku/locfunc.h

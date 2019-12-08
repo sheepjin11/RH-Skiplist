@@ -30,6 +30,7 @@ struct index_node
   TOID(leaf_node) leaf;
   int level;
   std::vector<index_node*> forward; 
+  bloom_filter* BF;
 };
 
 struct leaf_node
@@ -37,8 +38,8 @@ struct leaf_node
 	leaf_node(int min_val, TOID(KukuTable) HT);
 	~leaf_node();
 	int min;
+	int cnt;
 	TOID(leaf_node) leaf_forward;
-	TOID(bloom_filter) BF;
 	TOID(KukuTable) leaf_HT;	
 };
 
