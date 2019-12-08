@@ -1,0 +1,1 @@
+/usr/bin/c++     CMakeFiles/skiplist.dir/skiplist.cc.o  -o skiplist /usr/local/lib/libkuku-1.1.a -lpmem -lpmemobj -lpthread 
