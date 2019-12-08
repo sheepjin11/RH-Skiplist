@@ -8,11 +8,10 @@
 #include <vector>
 #include <random>
 #include <memory>
-#include <stdexcept>
+//#include <except>
 #include <set>
 #include <iomanip>
-namespace kuku
-{
+
     class QueryResult
     {
         friend class KukuTable;
@@ -25,7 +24,7 @@ namespace kuku
             return location_;
         }
 
-        inline std::size_t loc_func_index() const noexcept
+        inline size_t loc_func_index() const noexcept
         {
             return loc_func_index_;
         }
@@ -41,20 +40,20 @@ namespace kuku
         }
 
     private:
-        QueryResult(location_type location, std::size_t loc_func_index)
+        QueryResult(location_type location, size_t loc_func_index)
             : location_(location), loc_func_index_(loc_func_index)
         {
 #ifdef SEAL_DEBUG
             if (location >= max_table_size)
             {
-                throw std::invalid_argument("invalid location");
+                throw invalid_argument("invalid location");
             }
 #endif
         }
 
         location_type location_ = 0;
 
-        std::size_t loc_func_index_ = 0;
+        size_t loc_func_index_ = 0;
     };
 
     class KukuTable
@@ -66,9 +65,9 @@ namespace kuku
         KukuTable(
             int log_table_size,
             table_size_type stash_size,
-            std::size_t loc_func_count,
+            size_t loc_func_count,
             item_type loc_func_seed,
-            std::uint64_t max_probe,
+            uint64_t max_probe,
             item_type empty_item);
 
         /*
@@ -107,7 +106,7 @@ namespace kuku
         */
         inline location_type location(
             item_type item,
-            std::size_t loc_func_index) const
+            size_t loc_func_index) const
         {
             return loc_funcs_[loc_func_index](item);
         }
@@ -122,7 +121,7 @@ namespace kuku
         */
         void clear_table();
 
-        inline std::size_t loc_func_count() const noexcept
+        inline size_t loc_func_count() const noexcept
         {
             return loc_funcs_.size();
         }
@@ -171,7 +170,7 @@ namespace kuku
             return loc_func_seed_;
         }
 
-        inline std::uint64_t max_probe() const noexcept
+        inline uint64_t max_probe() const noexcept
         {
             return max_probe_;
         }
@@ -209,17 +208,16 @@ namespace kuku
                 static_cast<double>(table_size() + stash_size_);
         }
 
-    private:
         KukuTable(const KukuTable &copy) = delete;
 
         KukuTable &operator =(const KukuTable &assign) = delete;
 
-        void generate_loc_funcs(std::size_t loc_func_count, item_type seed);
+        void generate_loc_funcs(size_t loc_func_count, item_type seed);
 
         /*
         Insertion of an element using random-walk kuku hashing.
         */
-        bool insert(item_type item, std::uint64_t level);
+        bool insert(item_type item, uint64_t level);
 
 		// delete
 		bool Delete(item_type index_item);
@@ -266,7 +264,7 @@ namespace kuku
         /*
         The maximum number of attempts that are made to insert an item.
         */
-        std::uint64_t max_probe_;
+        uint64_t max_probe_;
 
         /*
         An item value that denotes an empty item.
@@ -288,5 +286,5 @@ namespace kuku
         Randomness source.
         */
         std::random_device rd_;
+    private:
     };
-}

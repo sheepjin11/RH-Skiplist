@@ -9,12 +9,7 @@
 #include "kuku/kuku.h"
 #include "bloom_filter.hpp"
 #include <libpmemobj.h>
-
 #define DEBUG 1
-
-
-using namespace kuku;
-using namespace std;
 
 typedef struct leaf_node leaf_node;
 typedef class KukuTable KukuTable;
@@ -28,13 +23,14 @@ POBJ_LAYOUT_END(skiplist);
 
 struct index_node
 {
-  index_node(int lvl, int min_val, TOID(struct leaf_node) leaf);
+  index_node(int lvl, int min_val, TOID(leaf_node) leaf);
   ~index_node();
   int min;
 //  struct leaf_node *leaf;
   TOID(leaf_node) leaf;
   int level;
-  vector<index_node*> forward; 
+  std::vector<index_node*> forward; 
+  bloom_filter* BF;
 };
 
 struct leaf_node
@@ -42,9 +38,9 @@ struct leaf_node
 	leaf_node(int min_val, TOID(KukuTable) HT);
 	~leaf_node();
 	int min;
+	int cnt;
 	TOID(leaf_node) leaf_forward;
-	TOID(bloom_filter) BF;
-  	TOID(KukuTable) leaf_HT;	
+	TOID(KukuTable) leaf_HT;	
 };
 
 class SkipList {
@@ -75,6 +71,7 @@ public:
 	bool deleteLeaf(TOID(leaf_node) leaf, int key);
 //concurrent operation will be implemented later
 
+	PMEMobjpool *pop;
 private:
 	int _max_level;
 
@@ -87,7 +84,6 @@ private:
 	index_node* index_tail;
 	TOID(leaf_node) leaf_tail;
 
-	PMEMobjpool *pop;
 };
 
 #endif // __SKIPLIST_H__

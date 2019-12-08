@@ -4,16 +4,14 @@
 #include "kuku/kuku.h"
 #include "iostream"
 #include <assert.h>
-using namespace std;
 
-namespace kuku
-{
+
     QueryResult KukuTable::query(item_type item) const
     {
 		item_type index_item = make_item(item[0], 0);
         if (is_empty_item(item))
         {
-            throw invalid_argument("cannot query the empty item");
+            //throw invalid_argument("cannot query the empty item");
         }
 
         // Search the hash table
@@ -21,7 +19,7 @@ namespace kuku
         for (size_t i = 0; i < lfc; i++)
         {
             auto loc = location(index_item, i);
-			//std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::endl;
+			//std::std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::std::endl;
             if (are_equal_item(table_[loc], item))
             {
                 return { loc, i };
@@ -54,15 +52,15 @@ namespace kuku
     {
         if (!loc_func_count || loc_func_count > max_loc_func_count)
         {
-            throw invalid_argument("invalid loc_func_count");
+            //throw invalid_argument("invalid loc_func_count");
         }
         if (log_table_size_ < 1 || log_table_size_ > max_log_table_size)
         {
-            throw invalid_argument("invalid log_table_size");
+            //throw invalid_argument("invalid log_table_size");
         }
         if (!max_probe)
         {
-            throw invalid_argument("max_probe cannot be zero");
+            //throw invalid_argument("max_probe cannot be zero");
         }
 
         // Allocate the hash table
@@ -72,9 +70,9 @@ namespace kuku
         generate_loc_funcs(loc_func_count, loc_func_seed_);
     }
 
-    set<location_type> KukuTable::all_locations(item_type item) const
+std::set<location_type> KukuTable::all_locations(item_type item) const
     {
-        set<location_type> result;
+		std::set<location_type> result;
         for (auto lf : loc_funcs_)
         {
             result.emplace(lf(item));
@@ -93,10 +91,10 @@ namespace kuku
 
     void KukuTable::generate_loc_funcs(size_t loc_func_count, item_type seed)
     {
-        loc_funcs_.clear();
+        //loc_funcs_.clear();
         while (loc_func_count--)
         {
-            loc_funcs_.emplace_back(log_table_size_, seed);
+            //loc_funcs_.emplace_back(log_table_size_, seed);
             increment_item(seed);
         }
     }
@@ -104,10 +102,9 @@ namespace kuku
     bool KukuTable::insert(item_type item, uint64_t level)
     {
 		item_type index_item = make_item(item[0], 0);
-		//std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::endl;
         if (is_empty_item(item))
         {
-            throw invalid_argument("cannot insert the null item");
+            //throw invalid_argument("cannot insert the null item");
         }
         if (level >= max_probe_)
         {
@@ -155,7 +152,7 @@ namespace kuku
         for (size_t i = 0; i < lfc; i++)
         {
             auto loc = location(index_item, i);
-			//std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::endl;
+			//std::std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::std::endl;
             if (are_equal_item(table_[loc], index_item))
             {
                 return table_[loc][1];
@@ -185,7 +182,7 @@ namespace kuku
         for (size_t i = 0; i < lfc; i++)
         {
             auto loc = location(index_item, i);
-			//std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::endl;
+			//std::std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::std::endl;
             if (are_equal_item(table_[loc], index_item))
             {
                 return loc;
@@ -212,7 +209,7 @@ namespace kuku
         for (size_t i = 0; i < lfc; i++)
         {
             auto loc = location(index_item, i);
-			//std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::endl;
+			//std::std::cout << "index_item : (" << index_item[0] << ", " << index_item[1] << "), item : (" << item[0] << ", " << item[1] << ")"<< std::std::endl;
             if (are_equal_item(table_[loc], index_item))
             {
 				table_[loc] = make_zero_item();
@@ -243,18 +240,17 @@ namespace kuku
 			{
 				uint64_t index = row * col_count + col;
 				item_type pair = table_[index];
-				cout << setw(5) << index << ": " << setw(5) << pair[0] << " " << pair[1] << "\t";	
+				std::cout << std::setw(5) << index << ": " << std::setw(5) << pair[0] << " " << pair[1] << "\t";	
 
 			}
-			cout << endl;
+			std::cout << std::endl;
 		}
 
-		cout << endl << "Stash: " << endl;
+		std::cout << std::endl << "Stash: " << std::endl;
 		for (size_t i = 0; i < stash().size(); i++)
 		{
 			item_type pair = stash(i);
-			cout << i << ": " << pair[0] << " " << pair[1] << endl;
+			std::cout << i << ": " << pair[0] << " " << pair[1] << std::endl;
 		}
-		cout << endl;
+		std::cout << std::endl;
 	}
-}

@@ -8,3 +8,7 @@ add_executable(skiplist skiplist.cc)
 
 find_package(Kuku 1.1.1 EXACT REQUIRED)
 target_link_libraries(skiplist Kuku::kuku)
+
+target_link_libraries(skiplist pmem)
+target_link_libraries(skiplist pmemobj)
+target_link_libraries(skiplist pthread)

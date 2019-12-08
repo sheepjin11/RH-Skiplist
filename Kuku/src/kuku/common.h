@@ -17,8 +17,7 @@
 #include <array>
 #include <algorithm>
 
-namespace kuku
-{
+
     using item_type = std::array<std::uint64_t, 2>;
 
     using location_type = std::uint32_t;
@@ -122,4 +121,3 @@ namespace kuku
         in[0] += 1;
         in[1] += !in[0] ? 1 : 0;
     }
-}

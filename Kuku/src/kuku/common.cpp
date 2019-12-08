@@ -8,9 +8,8 @@
 #include <bcrypt.h>
 #endif
 
-using namespace std;
 
-uint64_t kuku::random_uint64()
+uint64_t random_uint64()
 {
     uint64_t result;
 #if defined(__linux__) || (defined(__APPLE__) && defined(__MACH__))
