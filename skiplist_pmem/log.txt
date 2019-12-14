@@ -1,6 +1,345 @@
+-1
+0
+2147483
+4294966
+6442449
+8589932
+10737415
+12884898
+15032381
+17179864
+19327347
 number of node is 11
+split key is 128
+split key is 258
 after traverse!!
-number of node is 4444
+-1
+0
+Key of this map is : 10
+Key of this map is : 33
+Key of this map is : 48
+Key of this map is : 43
+Key of this map is : 55
+Key of this map is : 14
+Key of this map is : 46
+Key of this map is : 62
+Key of this map is : 1
+Key of this map is : 15
+Key of this map is : 30
+Key of this map is : 47
+Key of this map is : 18
+Key of this map is : 12
+Key of this map is : 17
+Key of this map is : 22
+Key of this map is : 45
+Key of this map is : 16
+Key of this map is : 13
+Key of this map is : 57
+Key of this map is : 28
+Key of this map is : 44
+Key of this map is : 36
+Key of this map is : 63
+Key of this map is : 39
+Key of this map is : 6
+Key of this map is : 21
+Key of this map is : 5
+Key of this map is : 4
+Key of this map is : 34
+Key of this map is : 32
+Key of this map is : 8
+Key of this map is : 24
+Key of this map is : 50
+Key of this map is : 53
+Key of this map is : 19
+Key of this map is : 23
+Key of this map is : 29
+Key of this map is : 58
+Key of this map is : 60
+Key of this map is : 31
+Key of this map is : 35
+Key of this map is : 49
+Key of this map is : 64
+Key of this map is : 11
+Key of this map is : 42
+Key of this map is : 3
+Key of this map is : 38
+Key of this map is : 51
+Key of this map is : 41
+Key of this map is : 9
+Key of this map is : 61
+Key of this map is : 59
+Key of this map is : 7
+Key of this map is : 25
+Key of this map is : 56
+Key of this map is : 20
+Key of this map is : 2
+Key of this map is : 37
+Key of this map is : 27
+Key of this map is : 26
+Key of this map is : 52
+Key of this map is : 54
+Key of this map is : 40
+65
+Key of this map is : 77
+Key of this map is : 106
+Key of this map is : 103
+Key of this map is : 96
+Key of this map is : 116
+Key of this map is : 70
+Key of this map is : 76
+Key of this map is : 95
+Key of this map is : 81
+Key of this map is : 120
+Key of this map is : 110
+Key of this map is : 74
+Key of this map is : 80
+Key of this map is : 86
+Key of this map is : 65
+Key of this map is : 91
+Key of this map is : 67
+Key of this map is : 122
+Key of this map is : 83
+Key of this map is : 94
+Key of this map is : 125
+Key of this map is : 85
+Key of this map is : 100
+Key of this map is : 99
+Key of this map is : 111
+Key of this map is : 118
+Key of this map is : 90
+Key of this map is : 79
+Key of this map is : 98
+Key of this map is : 121
+Key of this map is : 117
+Key of this map is : 97
+Key of this map is : 92
+Key of this map is : 88
+Key of this map is : 102
+Key of this map is : 75
+Key of this map is : 84
+Key of this map is : 113
+Key of this map is : 129
+Key of this map is : 124
+Key of this map is : 126
+Key of this map is : 112
+Key of this map is : 130
+Key of this map is : 66
+Key of this map is : 127
+Key of this map is : 101
+Key of this map is : 123
+Key of this map is : 107
+Key of this map is : 68
+Key of this map is : 87
+Key of this map is : 119
+Key of this map is : 71
+Key of this map is : 82
+Key of this map is : 73
+Key of this map is : 78
+Key of this map is : 105
+Key of this map is : 72
+Key of this map is : 109
+Key of this map is : 93
+Key of this map is : 115
+Key of this map is : 128
+Key of this map is : 89
+Key of this map is : 69
+Key of this map is : 114
+Key of this map is : 108
+Key of this map is : 104
+131
+Key of this map is : 170
+Key of this map is : 160
+Key of this map is : 139
+Key of this map is : 181
+Key of this map is : 179
+Key of this map is : 150
+Key of this map is : 148
+Key of this map is : 169
+Key of this map is : 154
+Key of this map is : 175
+Key of this map is : 137
+Key of this map is : 191
+Key of this map is : 133
+Key of this map is : 153
+Key of this map is : 140
+Key of this map is : 174
+Key of this map is : 163
+Key of this map is : 152
+Key of this map is : 149
+Key of this map is : 157
+Key of this map is : 156
+Key of this map is : 184
+Key of this map is : 144
+Key of this map is : 192
+Key of this map is : 162
+Key of this map is : 178
+Key of this map is : 173
+Key of this map is : 180
+Key of this map is : 171
+Key of this map is : 183
+Key of this map is : 146
+Key of this map is : 185
+Key of this map is : 145
+Key of this map is : 147
+Key of this map is : 158
+Key of this map is : 182
+Key of this map is : 155
+Key of this map is : 135
+Key of this map is : 172
+Key of this map is : 186
+Key of this map is : 167
+Key of this map is : 166
+Key of this map is : 168
+Key of this map is : 151
+Key of this map is : 136
+Key of this map is : 165
+Key of this map is : 131
+Key of this map is : 143
+Key of this map is : 138
+Key of this map is : 193
+Key of this map is : 194
+Key of this map is : 188
+Key of this map is : 195
+Key of this map is : 189
+Key of this map is : 164
+Key of this map is : 187
+Key of this map is : 159
+Key of this map is : 134
+Key of this map is : 177
+Key of this map is : 132
+Key of this map is : 176
+Key of this map is : 141
+Key of this map is : 190
+Key of this map is : 142
+Key of this map is : 161
+196
+Key of this map is : 214
+Key of this map is : 245
+Key of this map is : 260
+Key of this map is : 205
+Key of this map is : 252
+Key of this map is : 204
+Key of this map is : 223
+Key of this map is : 261
+Key of this map is : 212
+Key of this map is : 255
+Key of this map is : 249
+Key of this map is : 258
+Key of this map is : 256
+Key of this map is : 248
+Key of this map is : 226
+Key of this map is : 228
+Key of this map is : 207
+Key of this map is : 209
+Key of this map is : 251
+Key of this map is : 250
+Key of this map is : 202
+Key of this map is : 224
+Key of this map is : 206
+Key of this map is : 230
+Key of this map is : 217
+Key of this map is : 246
+Key of this map is : 235
+Key of this map is : 254
+Key of this map is : 253
+Key of this map is : 227
+Key of this map is : 229
+Key of this map is : 197
+Key of this map is : 196
+Key of this map is : 236
+Key of this map is : 216
+Key of this map is : 238
+Key of this map is : 215
+Key of this map is : 242
+Key of this map is : 241
+Key of this map is : 232
+Key of this map is : 199
+Key of this map is : 243
+Key of this map is : 218
+Key of this map is : 220
+Key of this map is : 234
+Key of this map is : 222
+Key of this map is : 210
+Key of this map is : 237
+Key of this map is : 225
+Key of this map is : 213
+Key of this map is : 211
+Key of this map is : 203
+Key of this map is : 233
+Key of this map is : 198
+Key of this map is : 200
+Key of this map is : 208
+Key of this map is : 247
+Key of this map is : 244
+Key of this map is : 259
+Key of this map is : 221
+Key of this map is : 239
+Key of this map is : 257
+Key of this map is : 219
+Key of this map is : 231
+Key of this map is : 201
+Key of this map is : 240
+262
+Key of this map is : 266
+Key of this map is : 286
+Key of this map is : 294
+Key of this map is : 283
+Key of this map is : 299
+Key of this map is : 289
+Key of this map is : 279
+Key of this map is : 263
+Key of this map is : 272
+Key of this map is : 274
+Key of this map is : 270
+Key of this map is : 285
+Key of this map is : 291
+Key of this map is : 267
+Key of this map is : 269
+Key of this map is : 281
+Key of this map is : 278
+Key of this map is : 271
+Key of this map is : 273
+Key of this map is : 295
+Key of this map is : 280
+Key of this map is : 287
+Key of this map is : 293
+Key of this map is : 276
+Key of this map is : 262
+Key of this map is : 284
+Key of this map is : 277
+Key of this map is : 282
+Key of this map is : 292
+Key of this map is : 298
+Key of this map is : 265
+Key of this map is : 268
+Key of this map is : 297
+Key of this map is : 275
+Key of this map is : 296
+Key of this map is : 264
+Key of this map is : 290
+Key of this map is : 288
+524
+1048
+2097
+4194
+8388
+16777
+33554
+67108
+134217
+268435
+536870
+1073741
+2147483
+4294966
+6442449
+8589932
+10737415
+12884898
+15032381
+17179864
+19327347
+number of node is 27
 find:: 1
 find:: 2
 find:: 3
@@ -129,31 +468,18 @@ find:: 125
 find:: 126
 find:: 127
 find:: 128
-there is no value for key : 128
 find:: 129
-there is no value for key : 129
 find:: 130
-there is no value for key : 130
 find:: 131
-there is no value for key : 131
 find:: 132
-there is no value for key : 132
 find:: 133
-there is no value for key : 133
 find:: 134
-there is no value for key : 134
 find:: 135
-there is no value for key : 135
 find:: 136
-there is no value for key : 136
 find:: 137
-there is no value for key : 137
 find:: 138
-there is no value for key : 138
 find:: 139
-there is no value for key : 139
 find:: 140
-there is no value for key : 140
 find:: 141
 find:: 142
 find:: 143
@@ -213,3 +539,103 @@ find:: 196
 find:: 197
 find:: 198
 find:: 199
+find:: 200
+find:: 201
+find:: 202
+find:: 203
+find:: 204
+find:: 205
+find:: 206
+find:: 207
+find:: 208
+find:: 209
+find:: 210
+find:: 211
+find:: 212
+find:: 213
+find:: 214
+find:: 215
+find:: 216
+find:: 217
+find:: 218
+find:: 219
+find:: 220
+find:: 221
+find:: 222
+find:: 223
+find:: 224
+find:: 225
+find:: 226
+find:: 227
+find:: 228
+find:: 229
+find:: 230
+find:: 231
+find:: 232
+find:: 233
+find:: 234
+find:: 235
+find:: 236
+find:: 237
+find:: 238
+find:: 239
+find:: 240
+find:: 241
+find:: 242
+find:: 243
+find:: 244
+find:: 245
+find:: 246
+find:: 247
+find:: 248
+find:: 249
+find:: 250
+find:: 251
+find:: 252
+find:: 253
+find:: 254
+find:: 255
+find:: 256
+find:: 257
+find:: 258
+find:: 259
+find:: 260
+find:: 261
+find:: 262
+find:: 263
+find:: 264
+find:: 265
+find:: 266
+find:: 267
+find:: 268
+find:: 269
+find:: 270
+find:: 271
+find:: 272
+find:: 273
+find:: 274
+find:: 275
+find:: 276
+find:: 277
+find:: 278
+find:: 279
+find:: 280
+find:: 281
+find:: 282
+find:: 283
+find:: 284
+find:: 285
+find:: 286
+find:: 287
+find:: 288
+find:: 289
+find:: 290
+find:: 291
+find:: 292
+find:: 293
+find:: 294
+find:: 295
+find:: 296
+find:: 297
+find:: 298
+find:: 299

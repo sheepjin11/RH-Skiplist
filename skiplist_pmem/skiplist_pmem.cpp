@@ -141,13 +141,13 @@ int SkipList::findNode(int key) { // return value address
 	}
 		if (!found && curr->min <= key) {
 
-			if(hm_rp_get(this->pop, curr_leaf->leaf_HT, key)==0)
+			if(hm_rp_get(this->pop, curr->leafnode->leaf_HT, key)==0)
 			{
 				printf("there is no value for key : %d\n", key); 
 				return 0;
 			}
 			else
-				return hm_rp_get(this->pop, curr_leaf->leaf_HT, key);
+				return hm_rp_get(this->pop, curr->leafnode->leaf_HT, key);
 		}
 	if (!found)
 		return 0;
@@ -177,6 +177,7 @@ void SkipList::insert(int key, const std::string& value) {
   if (_head || !insertLeaf(update[0]->leafnode,key,value)) 
   {
 
+	while(1) {  
     index_node* x = update[0];
 	int new_min = (x->min+x->forward[0]->min)/2; // comment : x가 아니라 before->min 아닌가?!
  
@@ -196,10 +197,13 @@ void SkipList::insert(int key, const std::string& value) {
     before = x->leafnode;
 	split_map(this->pop,before->leaf_HT, new_leaf->leaf_HT, new_min);
 	if(key>=new_min)
-		insertLeaf(new_leaf, key, value);
+		if (insertLeaf(new_leaf, key, value))
+			break;
 	else
-		insertLeaf(before, key, value);
+		if(insertLeaf(before, key, value))
+			break;
 	}
+  }
   else
   {
   }
@@ -329,6 +333,8 @@ void SkipList::traverse()
   int num =0;
   while(1)
   {
+	std::cout << iter_node->min << std::endl;
+	print_map(this->pop,iter_node->leaf_HT);
     num++;
 	iter_node = iter_node->leaf_forward;
     if(iter_node->min==MAX_INT)
@@ -364,14 +370,14 @@ int main()
   _skiplist->makeNode(10);
 
   _skiplist->traverse(); 
- for(int i=1;i<300000;i++)
+ for(int i=1;i<1000000;i++)
   {
     _skiplist->insert(i,"a");
   }
 	std::cout << "after traverse!!" << std::endl;
   _skiplist->traverse(); 
 
-  for(int i=1;i<200;i++)
+  for(int i=1;i<1000000;i++)
   {
 	std::cout << "find:: " << i << std::endl;
     _skiplist->findNode(i);
