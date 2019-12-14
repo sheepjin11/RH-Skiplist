@@ -17,6 +17,7 @@
 #define MAX_INT 21474836
 #define THRESHOLD 1000 
 
+#define POOL_SIZE 85899345920
 #include "skiplist_pmem.h"
  index_node::index_node(int lvl, int min_val, leaf_node* leafnode)
 	:min(min_val),
@@ -43,6 +44,7 @@ leaf_node* SkipList::make_leafNode(int min_val)
 	struct leaf_node* leafnode = new leaf_node;	
 	leafnode->min = min_val;
 	leafnode->cnt=0;
+	leafnode->leaf_forward=NULL;
 	TOID(struct hashmap_rp) map;
 	hm_rp_create(this->pop, &map, NULL);
 	hm_rp_init(this->pop, map);
@@ -60,7 +62,7 @@ bool SkipList::insertLeaf(leaf_node* leaf, int key, const std::string& value)
 	 * - 1 if value already existed
 	 * - -1 on error
 	 */
-	if (hm_rp_insert(this->pop,(leaf->leaf_HT), key, val_addr == -1)) // if insert fails, return false. need to split.
+	if (hm_rp_insert(this->pop,(leaf->leaf_HT), key, val_addr)==-1) // if insert fails, return false. need to split.
 	{
 		return false;
 	}
@@ -86,7 +88,7 @@ SkipList::SkipList(int max_level)
 	char* path = "/mnt/pmem/skiplist_file";
 	if (access( path, F_OK) == -1) {
 		if ((this->pop = pmemobj_create(path, POBJ_LAYOUT_NAME(skiplist),
-			1024*1024*1024, 0666)) == NULL) {
+			POOL_SIZE, 0666)) == NULL) {
 			perror("failed to create pool\n");
 			exit(0);
 		}
@@ -138,17 +140,7 @@ int SkipList::findNode(int key) { // return value address
 		}
 	}
 		if (!found && curr->min <= key) {
-			//search in leaf node
-      		leaf_node* curr_leaf;
-			curr_leaf = curr->leafnode;
-			/*
-			if(D_RW(D_RW(curr_leaf)->leaf_HT)->query(make_item(key,0)))  
-			{
-				found=true;
-				val_addr = D_RW(D_RW(curr_leaf)->leaf_HT)->get(key);
-				/layer = i;
-			}
-			*/
+
 			if(hm_rp_get(this->pop, curr_leaf->leaf_HT, key)==0)
 			{
 				printf("there is no value for key : %d\n", key); 
@@ -183,47 +175,30 @@ void SkipList::insert(int key, const std::string& value) {
 	} 
   
   if (_head || !insertLeaf(update[0]->leafnode,key,value)) 
-  { 
+  {
+
     index_node* x = update[0];
 	int new_min = (x->min+x->forward[0]->min)/2; // comment : x가 아니라 before->min 아닌가?!
  
-	std::cout << "split_new key: " << x->forward[0]->leafnode->min << std::endl;
-	std::cout << "split_before key: " << x->leafnode->min << std::endl;
 	leaf_node* new_leaf;
     new_leaf = make_leafNode(new_min);
-	new_leaf->cnt++; //may be modified
     
 	index_node* new_index = make_indexNode(lvl, new_min, new_leaf);
-    	for(int i=0;i<=lvl;i++)
-    	{
+    for(int i=0;i<=lvl;i++)
+   	{
       	new_index->forward[i] = update[i]->forward[i];
       	update[i]->forward[i] = new_index;
-    	}
+   	}
 	new_leaf->min = new_min;
     new_leaf->leaf_forward = x->leafnode->leaf_forward;
-    new_leaf->leaf_forward = new_leaf; 
-
+    x->leafnode->leaf_forward = new_leaf; 
 	leaf_node* before;
-    before = x->leafnode; 
-/*
-	struct entry *entry_p = (struct entry *)pmemobj_direct(D_RO(new_leaf->leaf_HT)->entries.oid);
-    	for (size_t row = 0; row <  D_RO(before->leaf_HT)->capacity; ++entry_p) 
-	{
-		uint64_t hash = entry_p->hash;
-		if(entry_is_empty(hash))
-			continue;
-		else{
-			if ( entry_p->key >= new_leaf->min) // have to migrate 
-			{
-				std::cout << " moved key is : " << key << key << std::endl;
-				//D_RW(D_RW(new_leaf)->leaf_HT)->insert(pair);
-				//D_RW(D_RW(before)->leaf_HT)->Delete(pair[0]);
-				hm_rp_insert(this->pop, new_leaf->leaf_HT, key, 2); // temp val_addr
-				hm_rp_remove(this->pop, before->leaf_HT, key);
-			}
-		}
-	}
-	*/
+    before = x->leafnode;
+	split_map(this->pop,before->leaf_HT, new_leaf->leaf_HT, new_min);
+	if(key>=new_min)
+		insertLeaf(new_leaf, key, value);
+	else
+		insertLeaf(before, key, value);
 	}
   else
   {
@@ -243,6 +218,7 @@ std::vector< std::pair<int, uint64_t> > SkipList::Query(std::vector<int> key_vec
     {
       min_vector.push_back(D_RW(iter_node)->min);
     }   
+	p
   }
 	std::cout << "query in 2" << std::endl;
   std::vector< std::vector<int> > result(key_vector.size());
@@ -353,8 +329,6 @@ void SkipList::traverse()
   int num =0;
   while(1)
   {
-    std::cout << num << "th node min value is " << iter_node->min << std::endl;
-	std::cout << "capacity of table is : " << D_RO(iter_node->leaf_HT)->capacity << std::endl;
     num++;
 	iter_node = iter_node->leaf_forward;
     if(iter_node->min==MAX_INT)
@@ -390,19 +364,19 @@ int main()
   _skiplist->makeNode(10);
 
   _skiplist->traverse(); 
- for(int i=1;i<2000000;i++)
+ for(int i=1;i<300000;i++)
   {
     _skiplist->insert(i,"a");
   }
 	std::cout << "after traverse!!" << std::endl;
   _skiplist->traverse(); 
- /*
+
   for(int i=1;i<200;i++)
   {
 	std::cout << "find:: " << i << std::endl;
     _skiplist->findNode(i);
   }
-  
+  /* 
   std::vector<int> query_ ;
   for(int i=1;i<200;i++)
   {
@@ -414,7 +388,6 @@ int main()
   {
 	  std::cout << result[i].first << "result is " << result[i].second << std::endl;
   }*/
-	_skiplist->traverse();
 	pmemobj_close(_skiplist->pop);
 }
 
