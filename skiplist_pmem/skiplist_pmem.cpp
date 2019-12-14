@@ -39,12 +39,12 @@ index_node* SkipList::make_indexNode(int lvl, int min_val, leaf_node* leafnode)
 }
 
 leaf_node* SkipList::make_leafNode(int min_val)
-{
-	struct leaf_node* leafnode;
+{	
+	struct leaf_node* leafnode = new leaf_node;	
 	leafnode->min = min_val;
 	leafnode->cnt=0;
 	TOID(struct hashmap_rp) map;
-	hm_rp_create(this->pop, map, NULL);
+	hm_rp_create(this->pop, &map, NULL);
 	hm_rp_init(this->pop, map);
 	leafnode->leaf_HT = map;
 	pmemobj_persist(this->pop, leafnode, sizeof(leafnode));
@@ -64,7 +64,6 @@ bool SkipList::insertLeaf(leaf_node* leaf, int key, const std::string& value)
 	{
 		return false;
 	}
-	std::cout << "yang!" << leaf->min << std::endl;	
 //	D_RW(leaf)->cnt++;
 	return true; // insert success.
 
@@ -355,6 +354,7 @@ void SkipList::traverse()
   while(1)
   {
     std::cout << num << "th node min value is " << iter_node->min << std::endl;
+	std::cout << "capacity of table is : " << D_RO(iter_node->leaf_HT)->capacity << std::endl;
     num++;
 	iter_node = iter_node->leaf_forward;
     if(iter_node->min==MAX_INT)
@@ -386,14 +386,16 @@ void findrandom()
 int main()
 {
 	SkipList* _skiplist = new SkipList(8);
+
   _skiplist->makeNode(10);
 
   _skiplist->traverse(); 
- for(int i=1;i<200;i++)
+ for(int i=1;i<2000000;i++)
   {
-	std::cout << "insert: " << i << std::endl;
     _skiplist->insert(i,"a");
   }
+	std::cout << "after traverse!!" << std::endl;
+  _skiplist->traverse(); 
  /*
   for(int i=1;i<200;i++)
   {
