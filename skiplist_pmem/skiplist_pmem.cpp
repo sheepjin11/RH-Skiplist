@@ -17,7 +17,7 @@
 #define MAX_INT 21474836
 #define THRESHOLD 1000 
 
-#define POOL_SIZE 85899345920
+#define POOL_SIZE 8589934592
 #include "skiplist_pmem.h"
  index_node::index_node(int lvl, int min_val, leaf_node* leafnode)
 	:min(min_val),
@@ -370,18 +370,32 @@ int main()
   _skiplist->makeNode(10);
 
   _skiplist->traverse(); 
+  
+ clock_t start, end;
+
+srand(time(NULL));
+
+ start = clock(); 
  for(int i=1;i<1000000;i++)
   {
-    _skiplist->insert(i,"a");
+	int random = rand();
+	int key = random % MAX_INT +1;
+    _skiplist->insert(key,"a");
   }
-	std::cout << "after traverse!!" << std::endl;
-  _skiplist->traverse(); 
-
-  for(int i=1;i<1000000;i++)
+ end = clock();
+printf("Insert Time : %lf\n", (double)(end - start)/CLOCKS_PER_SEC);
+ std::cout << "after traverse!!" << std::endl;
+ /* 
+ start = clock(); 
+ for(int i=1;i<1000000;i++)
   {
-	std::cout << "find:: " << i << std::endl;
-    _skiplist->findNode(i);
+	int random = rand();
+	int key = random%MAX_INT+1;
+    _skiplist->findNode(key);
   }
+ end = clock();
+printf("Search Time : %lf\n", (double)(end - start)/CLOCKS_PER_SEC);
+ */
   /* 
   std::vector<int> query_ ;
   for(int i=1;i<200;i++)
