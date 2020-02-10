@@ -363,7 +363,7 @@ void findrandom()
 }
 
 
-int main()
+int main(int argc, char* argv[])
 {
 	SkipList* _skiplist = new SkipList(8);
 
@@ -373,29 +373,31 @@ int main()
   
  clock_t start, end;
 
+ int cnt = atoi(argv[1]);
 srand(time(NULL));
 
  start = clock(); 
- for(int i=1;i<1000000;i++)
+ for(int i=1;i<cnt;i++)
   {
-	int random = rand();
-	int key = random % MAX_INT +1;
+//	int random = rand();
+//	int key = random % MAX_INT +1;
+	  int key = i;
     _skiplist->insert(key,"a");
   }
  end = clock();
 printf("Insert Time : %lf\n", (double)(end - start)/CLOCKS_PER_SEC);
- std::cout << "after traverse!!" << std::endl;
- /* 
+
  start = clock(); 
- for(int i=1;i<1000000;i++)
+ for(int i=1;i<cnt;i++)
   {
-	int random = rand();
-	int key = random%MAX_INT+1;
+//	int random = rand();
+//	int key = random%MAX_INT+1;
+	  int key=i;
     _skiplist->findNode(key);
   }
  end = clock();
 printf("Search Time : %lf\n", (double)(end - start)/CLOCKS_PER_SEC);
- */
+
   /* 
   std::vector<int> query_ ;
   for(int i=1;i<200;i++)

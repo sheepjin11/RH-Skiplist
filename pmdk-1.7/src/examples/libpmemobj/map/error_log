@@ -1,0 +1,72 @@
+map_skiplist.c:202:18: warning: initialization of ‘int (*)(PMEMobjpool *, union map_toid,  uint64_t,  PMEMoid)’ {aka ‘int (*)(struct pmemobjpool *, union map_toid,  long unsigned int,  struct pmemoid)’} from incompatible pointer type ‘int (*)(PMEMobjpool *, union map_toid,  uint64_t,  uint64_t)’ {aka ‘int (*)(struct pmemobjpool *, union map_toid,  long unsigned int,  long unsigned int)’} [-Wincompatible-pointer-types]
+  /* .insert = */ map_skiplist_insert,
+                  ^~~~~~~~~~~~~~~~~~~
+map_skiplist.c:202:18: note: (near initialization for ‘skiplist_map_ops.insert’)
+map_skiplist.c:204:18: warning: initialization of ‘PMEMoid (*)(PMEMobjpool *, union map_toid,  uint64_t)’ {aka ‘struct pmemoid (*)(struct pmemobjpool *, union map_toid,  long unsigned int)’} from incompatible pointer type ‘uint64_t (*)(PMEMobjpool *, union map_toid,  uint64_t)’ {aka ‘long unsigned int (*)(struct pmemobjpool *, union map_toid,  long unsigned int)’} [-Wincompatible-pointer-types]
+  /* .remove = */ map_skiplist_remove,
+                  ^~~~~~~~~~~~~~~~~~~
+map_skiplist.c:204:18: note: (near initialization for ‘skiplist_map_ops.remove’)
+map_skiplist.c:207:16: warning: initialization of ‘PMEMoid (*)(PMEMobjpool *, union map_toid,  uint64_t)’ {aka ‘struct pmemoid (*)(struct pmemobjpool *, union map_toid,  long unsigned int)’} from incompatible pointer type ‘uint64_t (*)(PMEMobjpool *, union map_toid,  uint64_t)’ {aka ‘long unsigned int (*)(struct pmemobjpool *, union map_toid,  long unsigned int)’} [-Wincompatible-pointer-types]
+  /* .get  = */ map_skiplist_get,
+                ^~~~~~~~~~~~~~~~
+map_skiplist.c:207:16: note: (near initialization for ‘skiplist_map_ops.get’)
+map_skiplist.c:209:19: warning: initialization of ‘int (*)(PMEMobjpool *, union map_toid,  int (*)(uint64_t,  PMEMoid,  void *), void *)’ {aka ‘int (*)(struct pmemobjpool *, union map_toid,  int (*)(long unsigned int,  struct pmemoid,  void *), void *)’} from incompatible pointer type ‘int (*)(PMEMobjpool *, union map_toid,  int (*)(uint64_t,  uint64_t,  void *), void *)’ {aka ‘int (*)(struct pmemobjpool *, union map_toid,  int (*)(long unsigned int,  long unsigned int,  void *), void *)’} [-Wincompatible-pointer-types]
+  /* .foreach = */ map_skiplist_foreach,
+                   ^~~~~~~~~~~~~~~~~~~~
+map_skiplist.c:209:19: note: (near initialization for ‘skiplist_map_ops.foreach’)
+map_skiplist.c: In function ‘main’:
+map_skiplist.c:218:14: warning: initialization of ‘char’ from ‘char *’ makes integer from pointer without a cast [-Wint-conversion]
+  char path = "mnt/pmem/skiplist_map_File";
+              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+map_skiplist.c:219:12: warning: passing argument 1 of ‘access’ makes pointer from integer without a cast [-Wint-conversion]
+  if(access(path, F_OK)==-1)
+            ^~~~
+In file included from map_skiplist.c:39:
+/usr/include/unistd.h:287:32: note: expected ‘const char *’ but argument is of type ‘char’
+ extern int access (const char *__name, int __type) __THROW __nonnull ((1));
+                    ~~~~~~~~~~~~^~~~~~
+map_skiplist.c:221:24: warning: passing argument 1 of ‘pmemobj_create’ makes pointer from integer without a cast [-Wint-conversion]
+   pop = pmemobj_create(path, POBJ_LAYOUT_NAME(skiplist_map), POOL_SIZE, 0666);
+                        ^~~~
+In file included from /usr/local/include/libpmemobj/pool.h:40,
+                 from /usr/local/include/libpmemobj.h:51,
+                 from map.h:40,
+                 from map_skiplist.c:37:
+/usr/local/include/libpmemobj/pool_base.h:80:14: note: expected ‘const char *’ but argument is of type ‘char’
+ PMEMobjpool *pmemobj_create(const char *path, const char *layout,
+              ^~~~~~~~~~~~~~
+map_skiplist.c:224:4: warning: implicit declaration of function ‘perror’; did you mean ‘strerror’? [-Wimplicit-function-declaration]
+    perror("failed to created pool \n");
+    ^~~~~~
+    strerror
+map_skiplist.c:225:4: warning: implicit declaration of function ‘exit’ [-Wimplicit-function-declaration]
+    exit(0);
+    ^~~~
+map_skiplist.c:225:4: warning: incompatible implicit declaration of built-in function ‘exit’
+map_skiplist.c:225:4: note: include ‘<stdlib.h>’ or provide a declaration of ‘exit’
+map_skiplist.c:41:1:
++#include <stdlib.h>
+ #define POOL_SIZE 85899345920
+map_skiplist.c:225:4:
+    exit(0);
+    ^~~~
+map_skiplist.c:230:24: warning: passing argument 1 of ‘pmemobj_open’ makes pointer from integer without a cast [-Wint-conversion]
+   if((pop=pmemobj_open(path, POBJ_LAYOUT_NAME(skiplist_map)))==NULL)
+                        ^~~~
+In file included from /usr/local/include/libpmemobj/pool.h:40,
+                 from /usr/local/include/libpmemobj.h:51,
+                 from map.h:40,
+                 from map_skiplist.c:37:
+/usr/local/include/libpmemobj/pool_base.h:73:14: note: expected ‘const char *’ but argument is of type ‘char’
+ PMEMobjpool *pmemobj_open(const char *path, const char *layout);
+              ^~~~~~~~~~~~
+map_skiplist.c:233:4: warning: incompatible implicit declaration of built-in function ‘exit’
+    exit(0);
+    ^~~~
+map_skiplist.c:233:4: note: include ‘<stdlib.h>’ or provide a declaration of ‘exit’
+map_skiplist.c:238:27: error: incompatible type for argument 2 of ‘map_skiplist_create’
+  map_skiplist_create(pop, map, NULL);
+                           ^~~
+map_skiplist.c:61:57: note: expected ‘union map_toid *’ but argument is of type ‘union map_toid’
+ map_skiplist_create(PMEMobjpool *pop, TOID(struct map) *map, void *arg)
+                                                         ^

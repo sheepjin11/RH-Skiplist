@@ -1,3 +1,0 @@
-/workspace/computer_archi/Kuku/examples/CMakeFiles/rebuild_cache.dir
-/workspace/computer_archi/Kuku/examples/CMakeFiles/example.dir
-/workspace/computer_archi/Kuku/examples/CMakeFiles/edit_cache.dir

@@ -1,0 +1,24 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/shrimp1/computer_archi/original_skiplist/main.c
+stdio.h
+-
+libpmemobj.h
+-
+/home/shrimp1/computer_archi/pmdk-1.7/src/examples/libpmemobj/list_map/skiplist_map.h
+-
+unistd.h
+/home/shrimp1/computer_archi/original_skiplist/unistd.h
+assert.h
+-
+
+/home/shrimp1/computer_archi/pmdk-1.7/src/examples/libpmemobj/list_map/skiplist_map.h
+libpmemobj.h
+-
+

@@ -1,1 +1,0 @@
-/usr/bin/c++     CMakeFiles/example.dir/example.cpp.o  -o /workspace/computer_archi/Kuku/bin/example /usr/local/lib/libkuku-1.1.a 
