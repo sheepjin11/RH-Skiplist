@@ -6,6 +6,6 @@ RH-Skiplist is new indexing sturcture with skiplist and hash for hybrid memory s
 To port, we used PMDK(https://pmem.io/pmdk/) which version is 1.7.  
 `range_skiplist` contains essential files of RH-skiplist.
 
-Detailed design, implementation and experiment result is shown in report().  
+Detailed design, implementation and experiment result is shown in report(https://github.com/sheepjin11/computer_archi/blob/master/RH_skiplist_report.pdf).  
  
 If you have questions, please contact via heejin5178@gmail.com or sheepjin11@gmail.com.
