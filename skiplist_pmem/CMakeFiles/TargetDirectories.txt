@@ -1,3 +1,0 @@
-/home/shrimp1/computer_archi/skiplist_pmem/CMakeFiles/rebuild_cache.dir
-/home/shrimp1/computer_archi/skiplist_pmem/CMakeFiles/skiplist_pmem.dir
-/home/shrimp1/computer_archi/skiplist_pmem/CMakeFiles/edit_cache.dir

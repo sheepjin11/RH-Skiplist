@@ -1,0 +1,4 @@
+*/*.txt
+*.txt
+*/CMakeFiles
+*/CMakeCache.txt

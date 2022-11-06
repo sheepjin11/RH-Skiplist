@@ -1,1 +1,0 @@
-/usr/bin/cc    CMakeFiles/original_skiplist_pmem.dir/main.c.o  -o original_skiplist_pmem -Wl,-rpath,/home/shrimp1/computer_archi/pmdk-1.7/src/examples/libpmemobj/list_map /home/shrimp1/computer_archi/pmdk-1.7/src/examples/libpmemobj/list_map/libskiplist_map.so -lpmem -lpmemobj -lpthread -lm 

@@ -16,22 +16,149 @@
 #include <libpmemobj.h>
 #include <unistd.h>
 
+#include "hashmap_internal.h"
+#include <inttypes.h>
+#define SEED 10
 #define MAX_INT 21474836
 #define THRESHOLD 1000 
+
+// code ref: https://github.com/pmem/pmdk/blob/master/src/examples/libpmemobj/hashmap/hashmap_atomic.c
+
+/* layout definition */
+TOID_DECLARE(struct buckets, HASHMAP_ATOMIC_TYPE_OFFSET + 1);
+TOID_DECLARE(struct entry, HASHMAP_ATOMIC_TYPE_OFFSET + 2);
+
+struct entry {
+	uint64_t key;
+	PMEMoid value;
+
+	/* list pointer */
+	POBJ_LIST_ENTRY(struct entry) list;
+};
+
+struct entry_args {
+	uint64_t key;
+	PMEMoid value;
+};
+
+POBJ_LIST_HEAD(entries_head, struct entry);
+struct buckets {
+	/* number of buckets */
+	size_t nbuckets;
+	/* array of lists */
+	struct entries_head bucket[];
+};
+
+struct hashmap_atomic {
+	/* random number generator seed */
+	uint32_t seed;
+
+	/* hash function coefficients */
+	uint32_t hash_fun_a;
+	uint32_t hash_fun_b;
+	uint64_t hash_fun_p;
+
+	/* number of values inserted */
+	uint64_t count;
+	/* whether "count" should be updated */
+	uint32_t count_dirty;
+
+	/* buckets */
+	TOID(struct buckets) buckets;
+	/* buckets, used during rehashing, null otherwise */
+	TOID(struct buckets) buckets_tmp;
+};
+
+/*
+ * create_entry -- entry initializer
+ */
+static int
+create_entry(PMEMobjpool *pop, void *ptr, void *arg)
+{
+	struct entry *e = (struct entry *)ptr;
+	struct entry_args *args = (struct entry_args *)arg;
+
+	e->key = args->key;
+	e->value = args->value;
+
+	memset(&e->list, 0, sizeof(e->list));
+
+	pmemobj_persist(pop, e, sizeof(*e));
+
+	return 0;
+}
+
+/*
+ * create_buckets -- buckets initializer
+ */
+static int
+create_buckets(PMEMobjpool *pop, void *ptr, void *arg)
+{
+	struct buckets *b = (struct buckets *)ptr;
+
+	b->nbuckets = *((size_t *)arg);
+	pmemobj_memset_persist(pop, &b->bucket, 0,
+			b->nbuckets * sizeof(b->bucket[0]));
+	pmemobj_persist(pop, &b->nbuckets, sizeof(b->nbuckets));
+
+	return 0;
+}
+
+/*
+ * create_hashmap -- hashmap initializer
+ */
+static void
+create_hashmap(PMEMobjpool *pop, TOID(struct hashmap_atomic) hashmap,
+		uint32_t seed)
+{
+	D_RW(hashmap)->seed = seed;
+	do {
+		D_RW(hashmap)->hash_fun_a = (uint32_t)rand();
+	} while (D_RW(hashmap)->hash_fun_a == 0);
+	D_RW(hashmap)->hash_fun_b = (uint32_t)rand();
+	D_RW(hashmap)->hash_fun_p = HASH_FUNC_COEFF_P;
+
+	size_t len = INIT_BUCKETS_NUM;
+	size_t sz = sizeof(struct buckets) +
+			len * sizeof(struct entries_head);
+
+	pmemobj_persist(pop, D_RW(hashmap), sizeof(*D_RW(hashmap)));
+
+	if (POBJ_ALLOC(pop, &D_RW(hashmap)->buckets, struct buckets, sz,
+			create_buckets, &len)) {
+		fprintf(stderr, "root alloc failed: %s\n", pmemobj_errormsg());
+		abort();
+	}
+}
+
+/*
+ * hash -- the simplest hashing function,
+ * see https://en.wikipedia.org/wiki/Universal_hashing#Hashing_integers
+ */
+static uint64_t
+hash(const TOID(struct hashmap_atomic) *hashmap,
+		const TOID(struct buckets) *buckets,
+	uint64_t value)
+{
+	uint32_t a = D_RO(*hashmap)->hash_fun_a;
+	uint32_t b = D_RO(*hashmap)->hash_fun_b;
+	uint64_t p = D_RO(*hashmap)->hash_fun_p;
+	size_t len = D_RO(*buckets)->nbuckets;
+
+	return ((a * value + b) % p) % len;
+}
+
 index_node::index_node(int lvl, int min_val, TOID(leaf_node) leafnode)
 	:min(min_val),
   	leaf(leafnode),
-	level(lvl){		
-	}
+	level(lvl) {};
 
-leaf_node::leaf_node(int min_val, TOID(KukuTable) HT)
+leaf_node::leaf_node(int min_val, TOID(struct hashmap_atomic) HT)
 	:min(min_val),
-	leaf_HT(HT){	
-	}
+	leaf_HT(HT) {};
+
 value_node::value_node()
-	:real_value("")
-{
-}
+	:real_value("") {};
 
 index_node* SkipList::make_indexNode(int lvl, int min_val, TOID(leaf_node) leafnode)
 { 
@@ -45,69 +172,58 @@ index_node* SkipList::make_indexNode(int lvl, int min_val, TOID(leaf_node) leafn
 
 TOID(leaf_node) SkipList::make_leafNode(int min_val)
 {
-	int log_table_size = 8;
-	table_size_type stash_size = 0;
-	size_t loc_func_count = 4;
-	item_type loc_func_seed = make_random_item();
-	uint64_t max_probe = 100;
-	item_type empty_item = make_item(0, 0);
-	
-	TOID(KukuTable) newHT;
-	POBJ_ALLOC(this->pop, &newHT, KukuTable, sizeof(KukuTable), NULL, NULL);
-
-	D_RW(newHT)->log_table_size_ = log_table_size;
-	D_RW(newHT)->stash_size_ = stash_size;
-	D_RW(newHT)->loc_func_seed_ = loc_func_seed;
-	D_RW(newHT)->max_probe_ = max_probe;
-	D_RW(newHT)->empty_item_ = empty_item;
-	D_RW(newHT)->generate_loc_funcs(loc_func_count, loc_func_seed);
-	
 	TOID(leaf_node) leafnode;
-	POBJ_ALLOC(this->pop, &leafnode, leaf_node, sizeof(leaf_node), NULL, NULL);
+	int ret = POBJ_ALLOC(this->pop, &leafnode, leaf_node, sizeof(leaf_node), NULL, NULL);
 	D_RW(leafnode)->min = min_val;
-	D_RW(leafnode)->leaf_HT = newHT;
 	D_RW(leafnode)->cnt=0;
-
+	ret = POBJ_ALLOC(this->pop, &(D_RW(leafnode)->leaf_HT), struct hashmap_atomic, sizeof(struct hashmap_atomic), NULL, NULL);
+	create_hashmap(this->pop, D_RW(leafnode)->leaf_HT, SEED);	
 	return leafnode;
 }
 
-bool SkipList::insertLeaf(TOID(leaf_node) leaf, int key, std::string value)
+bool SkipList::insertLeaf(TOID(leaf_node) leaf, int key, char* value)
 {
-	uint64_t val_addr = 2; // need to modify
-	//if (!D_RW(D_RW(leaf)->leaf_HT)->insert(make_item((uint64_t)key,val_addr))) // if insert fails, return false. need to split.
-	
 	if(D_RW(leaf)->cnt > THRESHOLD)
 	{
 		return false;
 	}
-	D_RW(D_RW(leaf)->leaf_HT)->insert(make_item((uint64_t)key,val_addr));
-	D_RW(leaf)->cnt++;
-	return true; // insert success.
-
-}
-
-bool SkipList::deleteLeaf(TOID(leaf_node) leaf, int key)
-{
-  //hash delete
-
-	D_RW(leaf)->cnt--;
-	if ( !D_RW(D_RW(leaf)->leaf_HT)->Delete(key)) // key does not exist
-		return false;
-	else
+	uint64_t cast_key = static_cast<uint64_t>(key);
+	
+	TOID(value_node) persist_value;
+	POBJ_ALLOC(this->pop, &persist_value, value_node, sizeof(value_node), NULL, NULL);
+	D_RW(persist_value)->real_value = value;
+	if (OID_EQUALS(persist_value.oid, OID_NULL)) {
+		fprintf(stdout, "value is null\n");
+	}
+	int result = hm_atomic_insert(this->pop, D_RW(leaf)->leaf_HT, cast_key, persist_value.oid);
+	if (result == 1) { // new insert
+		D_RW(leaf)->cnt++;
+		return true; 
+	}
+	else if (result == 0) { // update
 		return true;
+	}
+	else { // fail
+		fprintf(stdout, "insert fail\n");
+		return false;
+	}
 }
 
 SkipList::SkipList(int max_level)
 	:_max_level(max_level),
 	 _level(1) {
 	char* path = "/mnt/pmem/skiplist_file";
-	if (access( path, F_OK) == -1) {
-		if ((this->pop = pmemobj_create(path, POBJ_LAYOUT_NAME(skiplist),
-			5*1024*1024*1024, 0666)) == NULL) {
+	size_t pool_size = 5<<30;
+	if (access(path, F_OK) == -1) {
+		if ((this->pop = pmemobj_create(path, "skiplist",
+			pool_size, 0666)) == NULL) {
 			perror("failed to create pool\n");
 			exit(0);
 		}
+		fprintf(stdout, "create pool %lu\n", pool_size);
 	} else {
+		fprintf(stdout, "This version requests to remove existing file\n");
+		exit(1);
 		if ((this->pop = pmemobj_open(path,
 				POBJ_LAYOUT_NAME(skiplist))) == NULL) {
 			perror("failed to open pool\n");
@@ -125,7 +241,7 @@ SkipList::SkipList(int max_level)
 	} 
 	D_RW(leaf_head)->leaf_forward = leaf_tail; 
 }
-//do not modify anything
+
 int SkipList::randomLevel() const {
 	static thread_local std::mt19937 generator(std::chrono::system_clock::now().time_since_epoch().count());
     std::uniform_int_distribution<int> distribution(0,1);
@@ -136,16 +252,15 @@ int SkipList::randomLevel() const {
 	return lvl;
 }
 
-//in LEVELDB, FindGreaterOrEqual
-int SkipList::findNode(int key) { // return value address
+char* SkipList::findNode(int key) { // return value address
 	index_node* prev = index_head;
 	bool found = false;
 	int val_addr;
-  	index_node* curr;
+	index_node* curr;
 	for (int i = _max_level-1; i >= 0; i--) {
 		curr = prev;
-		while (curr->min!=MAX_INT && curr->forward[i]!=NULL) {
-      			if(curr->forward[i]->min==MAX_INT || curr->forward[i]->min > key)
+		while (curr->min != MAX_INT && curr->forward[i] != NULL) {
+			if(curr->forward[i]->min == MAX_INT || curr->forward[i]->min > key)
 					break;
 			else
 			{
@@ -154,176 +269,104 @@ int SkipList::findNode(int key) { // return value address
 			}
 		}
 	}
-		if (!found && curr->min <= key) {
-			//search in leaf node
-      			TOID(leaf_node) curr_leaf;
-			curr_leaf = curr->leaf;
-				
-				if(D_RW(D_RW(curr_leaf)->leaf_HT)->query(make_item(key,0)))  
-				{
-					found=true;
-					val_addr = D_RW(D_RW(curr_leaf)->leaf_HT)->get(key);
+	if (!found && curr->min <= key) {
+		//search in leaf node
+		TOID(leaf_node) curr_leaf = curr->leaf;
+		uint64_t cast_key = static_cast<uint64_t>(key);
+		PMEMoid result = hm_atomic_get(this->pop, D_RW(curr_leaf)->leaf_HT, cast_key);	
+		if (OID_EQUALS(result, OID_NULL)) {
+			TOID(struct entry) var;
+			TOID(struct buckets) buckets = D_RO(D_RO(curr_leaf)->leaf_HT)->buckets;
+			uint64_t h = hash(&D_RO(curr_leaf)->leaf_HT, &buckets, key);
+			POBJ_LIST_FOREACH(var, &D_RO(buckets)->bucket[h], list)
+				if (D_RO(var)->key == key)
+					fprintf(stdout, "func is malfunc\n");
+			for (size_t i = 0; i < D_RO(buckets)->nbuckets; ++i)
+				POBJ_LIST_FOREACH(var, &D_RO(buckets)->bucket[i], list) {
+					if (D_RO(var)->key == key) {
+						fprintf(stdout, "actually, this hashmap has the key.. %d, %d\n", i, h);
+					}
 				}
+			return NULL; // fail to search
 		}
-	if (!found)
-		return 0;
-	return val_addr;
+		else {
+			return static_cast<char*>(pmemobj_direct(result));
+		}
+	}
 }
 
-//leaf Get implementation
+// void SkipList::MigrateNewNode(TOID(leaf_node) before_node, TOID(leaf_node) new_node) {
+void SkipList::MigrateNewNode(void* before_node_ptr, void* new_node_ptr) {
+	TOID(leaf_node) before_node = pmemobj_oid(before_node_ptr);
+	TOID(leaf_node) new_node = pmemobj_oid(new_node_ptr);
+	TOID(struct buckets) buckets = D_RO(D_RO(before_node)->leaf_HT)->buckets;
+	TOID(struct entry) var;
+	int new_min = D_RO(new_node)->min;
+	int ret = 0;
+	for (size_t i = 0; i < D_RO(buckets)->nbuckets; ++i)
+		POBJ_LIST_FOREACH(var, &D_RO(buckets)->bucket[i], list) {
+			if (D_RO(var)->key > new_min) { // migration needed
+				// insert new node
+				int result = hm_atomic_insert(this->pop, D_RW(new_node)->leaf_HT, D_RO(var)->key, D_RO(var)->value);
+				if (result == -1) {
+					fprintf(stderr, "during migration, insert failed\n");
+					exit(1);
+				}
+				// remove item from original node
+				PMEMoid remove_result = hm_atomic_remove(this->pop, D_RO(before_node)->leaf_HT, D_RO(var)->key);
+				if (OID_EQUALS(remove_result, OID_NULL)) {
+					fprintf(stdout, "during migration, remove failed\n");
+					exit(1);
+				}
+				// update cnt	
+				D_RW(before_node)->cnt--;
+				D_RW(new_node)->cnt++;
+			}
+		}
+}
 
-void SkipList::insert(int key, std::string value) {
-/*
-  TOID(value_node) persist_value;
-  POBJ_ALLOC(this->pop, &persist_value, value_node, sizeof(value_node), NULL, NULL);
-
-  D_RW(persist_value)->real_value = (char*)value.c_str();
-
-  char** tmp_addr = &(D_RW(persist_value)->real_value);
-  std::cout << "value addr is " << tmp_addr << std::endl;
-*/
-
-
+void SkipList::insert(int key, char* value) {
   bool _head = false;
   int lvl = randomLevel();  
   index_node* update[lvl];
   for (int i = lvl; i >-1; i--) {
 	  index_node* x = this->index_head;
-      	  while(x->min < key && x->forward[i] != NULL)
-      {
-        if(x->forward[i]->min==MAX_INT || x->forward[i]->min > key)
-          break;
-        else
-          x = x->forward[i];
-      }
-      update[i] = x;
-	} 
-		std::cout << "min is  " << update[0]->min << "and key is " << key << std::endl;
-  
-  if (_head || !insertLeaf(update[0]->leaf,key,value)) 
-  { 
-    index_node* x = update[0];
-	int new_min = (x->min+x->forward[0]->min)/2; // comment : x가 아니라 before->min 아닌가?!
- 
-	std::cout << "split_new key: " << D_RW(x->forward[0]->leaf)->min << std::endl;
-	std::cout << "split_before key: " << D_RW(x->leaf)->min << std::endl;
-	TOID(leaf_node) new_leaf;
-    new_leaf = make_leafNode(new_min);
-	D_RW(new_leaf)->cnt++; //may be modified
-    index_node* new_index = make_indexNode(lvl, new_min, new_leaf);
-    for(int i=0;i<=lvl;i++)
-    {
-      new_index->forward[i] = update[i]->forward[i];
-      update[i]->forward[i] = new_index;
-    }
-	D_RW(new_leaf)->min = new_min;
-    D_RW(new_leaf)->leaf_forward = D_RW(x->leaf)->leaf_forward;
-    D_RW(x->leaf)->leaf_forward = new_leaf; 
-
-    int col_count = 8;
-    TOID(leaf_node) before;
-    before = x->leaf; 
-    for (int row = 0; row <  D_RW(D_RW(before)->leaf_HT)->table_size() / col_count; row++) 
+		while(x->min < key && x->forward[i] != NULL)
 		{
-			for (int col = 0; col < col_count; col++)
-			{
-				int index = row * col_count + col;
-				item_type pair = D_RW(D_RW(before)->leaf_HT)->table(index);
-				if (pair[0] || pair[1]) // if key exists
-				{
-					if (pair[0] >= D_RW(new_leaf)->min) // have to migrate 
-					{
-						std::cout << key << key << " row: " << row << std::endl;
-						D_RW(D_RW(new_leaf)->leaf_HT)->insert(pair);
-						D_RW(D_RW(before)->leaf_HT)->Delete(pair[0]);
-						D_RW(new_leaf)->cnt++;
-						D_RW(before)->cnt--;
-					}
-						
-				}
-			}
-		}
-	  
-	}
-  else
-  {
-  }  
-
-}
-
-std::vector< std::pair<int, uint64_t> > SkipList::Query(std::vector<int> key_vector) {
-  std::vector<int> min_vector;
-  TOID(leaf_node) iter_node = this->leaf_head;
-	  while(1)
-  {
-    iter_node = D_RW(iter_node)->leaf_forward;
-    if(D_RW(iter_node)->min==MAX_INT)
-      break;
-    else  
-    {
-      min_vector.push_back(D_RW(iter_node)->min);
-    }   
-  }
-  std::vector< std::vector<int> > result(key_vector.size());
-  for(int i=0;i<key_vector.size();i++)
-  {
-    result[i].resize(min_vector.size());
-  }
-  for(int i=0;i<key_vector.size();i++)
-  {
-    for(int j=0;j<min_vector.size();j++)
-    {
-        if(key_vector[i] <= min_vector[j])
-        {
-          result[j].push_back(key_vector[i]);
-          break;
-        }
-    }
-  }	  std::vector< std::pair<int,uint64_t> > val_addr_vector(key_vector.size());
-
-  for(int i=0;i<min_vector.size();i++)
-  {
-    TOID(leaf_node) curr_leaf = this->leaf_head;
-    for(int z=0;z<i;z++)
-    {
-      curr_leaf = D_RW(curr_leaf)->leaf_forward;
-    }
-    for(int j=0;j<result[i].size();j++)
-    {
-      int key = result[i][j];
-      if(key!=0)
-      {
-				if(D_RW(D_RW(curr_leaf)->leaf_HT)->query(make_item(key,0)))  
-				{
-					std::cout << "query in 1: " << D_RW(curr_leaf)->min << std::endl;
-					uint64_t val_addr = D_RW(D_RW(curr_leaf)->leaf_HT)->get(key);
-					std::pair<int, uint64_t> return_value = std::make_pair(key, val_addr);
-					val_addr_vector.push_back(return_value);
-				}
-      }
-    }
-  }
-	return val_addr_vector;
-
-}
-//heejin must re-implement leaf node
-bool SkipList::erase(int key) {
-	std::vector<index_node*> update(_max_level+1);
-	index_node* x= index_head;
-	for(int i = _max_level; i >= 1; --i) {
-		index_node* next = x->forward[i];
-		while (next->min < key && next->forward[i]->min > key) {
-			x = next;
+			if(x->forward[i]->min==MAX_INT || x->forward[i]->min > key)
+				break;
+			else
+				x = x->forward[i];
 		}
 		update[i] = x;
+	} 
+  
+	if (_head || !insertLeaf(update[0]->leaf,key,const_cast<char*>(value))) 
+  { 
+    index_node* x = update[0];
+		int new_min = (x->min+x->forward[0]->min)/2;
+	 
+		std::cout << "split_new key: " << D_RW(x->forward[0]->leaf)->min << std::endl;
+		std::cout << "split_before key: " << D_RW(x->leaf)->min << std::endl;
+		TOID(leaf_node) new_leaf;
+		new_leaf = make_leafNode(new_min);
+		D_RW(new_leaf)->cnt++; //may be modified
+		index_node* new_index = make_indexNode(lvl, new_min, new_leaf);
+		for(int i=0;i<=lvl;i++)
+		{
+			new_index->forward[i] = update[i]->forward[i];
+			update[i]->forward[i] = new_index;
+		}
+		D_RW(new_leaf)->min = new_min;
+		D_RW(new_leaf)->leaf_forward = D_RW(x->leaf)->leaf_forward;
+		D_RW(x->leaf)->leaf_forward = new_leaf; 
+
+		TOID(leaf_node) before;
+		before = x->leaf; 
+		MigrateNewNode(pmemobj_direct(before.oid), pmemobj_direct(new_leaf.oid));
 	}
-	if(deleteLeaf(x->leaf, key)==false)
-	{
-		std::cout << "this key is not existing" << std::endl;
-	}
-	
-	return true;
 }
+
 void SkipList::makeNode(int node_num)
 {
   for(int node_iter = 0; node_iter<node_num; node_iter++)
@@ -371,32 +414,12 @@ void SkipList::traverse()
   {
     std::cout << num << "th node min value is " << D_RW(iter_node)->min << std::endl;
     num++;
-	iter_node = D_RW(iter_node)->leaf_forward;
+		iter_node = D_RW(iter_node)->leaf_forward;
     if(D_RW(iter_node)->min==MAX_INT)
       break; 
   }
   std::cout << "number of node is " << num << std::endl;
 }
-void fillseq()
-{
-
-}
-
-void fillrandom()
-{
-
-}
-
-void findseq()
-{
-
-}
-
-void findrandom()
-{
-
-}
-
 
 int main()
 {
@@ -406,27 +429,22 @@ int main()
   _skiplist->traverse(); 
  for(int i=1;i<200;i++)
   {
-	std::cout << "insert: " << i << std::endl;
     _skiplist->insert(i, "a");
   }
-  for(int i=1;i<200;i++)
+	size_t search_num = 200;
+	size_t search_success = 1;
+  for(int i=1;i<search_num;i++)
   {
-   
-	std::cout << i << "find:: " << _skiplist->findNode(i)<< std::endl; 
+		char* ret = _skiplist->findNode(i);
+		if (ret == NULL) {
+			fprintf(stdout, "find failed\n");
+		}
+		else {
+			search_success++;
+		}
   }
-  /*
-  std::vector<int> query_ ;
-  for(int i=1;i<200;i++)
-  {
-    query_.push_back(i);
-  }
-  std::vector< std::pair<int,uint64_t> > result = _skiplist->Query(query_);
-  std::cout << "query finished" <<  std::endl;
-  for(int i=0;i<result.size();i++)
-  {
-	  std::cout << result[i].first << "result is " << result[i].second << std::endl;
-  }
-*/
-	_skiplist->traverse();
+	if (search_num == search_success) {
+		fprintf(stdout, "Every key is searched\n");
+	}
 	pmemobj_close(_skiplist->pop);
 }
