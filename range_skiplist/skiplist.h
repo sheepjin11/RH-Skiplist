@@ -6,15 +6,17 @@
 #include <vector>
 #include <atomic>
 
-#include "kuku/kuku.h"
 #include "bloom_filter.hpp"
 #include <libpmemobj.h>
+#include "hashmap_atomic.h"
+
 #define DEBUG 1
 
 typedef struct leaf_node leaf_node;
 typedef class KukuTable KukuTable;
 typedef class bloom_filter bloom_filter;
 typedef struct value_node value_node;
+typedef struct value_type value_type;
 
 POBJ_LAYOUT_BEGIN(skiplist);
 POBJ_LAYOUT_TOID(skiplist, leaf_node);
@@ -42,12 +44,12 @@ struct index_node
 
 struct leaf_node
 {
-	leaf_node(int min_val, TOID(KukuTable) HT);
+	leaf_node(int min_val, TOID(struct hashmap_atomic) HT);
 	~leaf_node();
 	int min;
 	int cnt;
 	TOID(leaf_node) leaf_forward;
-	TOID(KukuTable) leaf_HT;	
+	TOID(struct hashmap_atomic) leaf_HT;
 };
 
 class SkipList {
@@ -56,7 +58,7 @@ public:
 	SkipList(int max_level);
 
 	// thread-unsafe
-	void insert(int key, std::string value);
+	void insert(int key, char* value);
 
 	// thread-unsafe
 	bool erase(int key);
@@ -73,11 +75,12 @@ public:
 	std::vector< std::pair<int, uint64_t> > Query(std::vector<int> key_vector);
 
 	void makeNode(int node_num);
-	int findNode(int key);
+	char* findNode(int key);
 	index_node* make_indexNode(int lvl, int min_val, TOID(leaf_node) leafnode);
 	TOID(leaf_node) make_leafNode(int min);
-	bool insertLeaf(TOID(leaf_node) leaf, int key, std::string value);
+	bool insertLeaf(TOID(leaf_node) leaf, int key, char* value);
 	bool deleteLeaf(TOID(leaf_node) leaf, int key);
+	void MigrateNewNode(void* before_node_ptr, void* new_node_ptr);
 //concurrent operation will be implemented later
 
 	PMEMobjpool *pop;
